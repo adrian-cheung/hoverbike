@@ -65,6 +65,8 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     angularVel *= 0.95f;
     angle += angularVel * deltaTime;
     pos += vel * deltaTime;
+
+    ApplyForce(vel * -0.01, pos, deltaTime);
 }
 
 void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
