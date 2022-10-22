@@ -12,6 +12,12 @@ void Player::Render() {
 }
 
 void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegments) {
+    accel = Vec2 {};
+    angularAccel = 0.0f;
+
+    // gravity :)
+    accel.y += GRAVITY;
+    
     //user input
     float speed = 300.0f;
 
@@ -57,13 +63,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
     angularVel *= 0.95f;
-//    angle += angularVel * deltaTime;
-
     MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
-//    pos += vel * deltaTime;
-    accel = Vec2(0, GRAVITY);
-    angularAccel = 0;
-
 }
 
 void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
@@ -73,8 +73,8 @@ void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
     float torque = (r.x * force.y - r.y * force.x) * torqueMultiplier;
     float rotInertia = mass * (dimens.x * dimens.x + dimens.y * dimens.y) / 12.0f;
 
-    accel = force / mass;
-    angularAccel = torque / rotInertia;
+    accel += force / mass;
+    angularAccel += torque / rotInertia;
 }
 
 vector<Vec2> Player::Polygon(Vec2 offset) {
@@ -94,8 +94,10 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, flo
     optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + PI / 6.0f, maxLen, terrainSegments);
     optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - PI / 6.0f, maxLen, terrainSegments);
 
+    // sigmoid function
     const auto lenToForce = [&](float len){
-        return -(maxLen - len) * 10.0f;
+        return -2000.0f / (1.0f + exp(-(maxLen * 0.3f - len) * 0.2f));
+        //        return -(maxLen - len) * 10.0f;
     };
 
     if (backBoosterDist) {

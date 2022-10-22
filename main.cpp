@@ -4,6 +4,7 @@
 #include "src/Collision.h"
 #include "src/PerlinNoise.h"
 #include "src/CityScape.h"
+#include "src/Particle.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -17,6 +18,7 @@ Camera2D camera = { 0 };
 vector<TerrainSegment> terrainSegments;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
+vector<Particle> particle;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -100,6 +102,8 @@ void UpdateDrawFrame()
     }
 
     player->Render();
+    Particle::Render();
+
 
     DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
 
