@@ -40,8 +40,8 @@ public:
     [[nodiscard]] Vec2 PlayerToWorldPos(Vec2 playerPos) const;
 
 private:
-    RayTexture texture = {Paths::Image("HoverCraft")};
-    float scale = 25.0f;
+    RayTexture texture = {Paths::Image("bike")};
+    float scale = 4;
 
     void SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime);
     [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
