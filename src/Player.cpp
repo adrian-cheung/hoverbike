@@ -34,8 +34,8 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     SimulateBoosters(terrainSegments, deltaTime);
 
-    Vec2 forwardForce = Vec2 (20, 0).Rotate(angle);
-    Vec2 rotateForce = Vec2 (0, -5).Rotate(angle);
+    Vec2 forwardForce = Vec2 (80, 0).Rotate(angle);
+    Vec2 rotateForce = Vec2 (0, -50).Rotate(angle);
     if (IsKeyDown(KEY_SPACE)) {
         Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
         DrawCircleV(leftMiddle, 10, GREEN);
@@ -56,6 +56,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
+    angularVel *= 0.95f;
     angle += angularVel * deltaTime;
     pos += vel * deltaTime;
     accel = Vec2(0, GRAVITY);
@@ -66,8 +67,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
     Vec2 r = point - pos;
 
-//    Vec2 torque = r.cross(force);
-    float torqueMultiplier = 0.1f;
+    float torqueMultiplier = 1.0f;
     float torque = (r.x * force.y - r.y * force.x) * torqueMultiplier;
     float rotInertia = mass * (dimens.x * dimens.x + dimens.y * dimens.y) / 12.0f;
 
@@ -89,13 +89,17 @@ vector<Vec2> Player::Polygon() {
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
-    optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir, maxLen, terrainSegments);
-    optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir, maxLen, terrainSegments);
+    optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + PI / 6.0f, maxLen, terrainSegments);
+    optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - PI / 6.0f, maxLen, terrainSegments);
+
+    const auto lenToForce = [&](float len){
+        return -(maxLen - len) * 10.0f;
+    };
 
     if (backBoosterDist) {
         raylib::DrawText(std::to_string(*backBoosterDist), 50, 50, 30, BLUE);
 
-        Vec2 backForce = Vec2 (0, -pow(maxLen - *backBoosterDist, 2) / 50).Rotate(angle + PI/6);
+        Vec2 backForce = Vec2 (0, lenToForce(*backBoosterDist)).Rotate(angle + PI/6);
         Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
 
         DrawLineV(bottomLeft, bottomLeft - backForce, WHITE);
@@ -106,7 +110,7 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, flo
     if (frontBoosterDist) {
         raylib::DrawText(std::to_string(*frontBoosterDist), 50, 150, 30, BLUE);
 
-        Vec2 frontForce = Vec2 (0, -pow(maxLen - *frontBoosterDist, 2) / 50).Rotate(angle - PI/6);
+        Vec2 frontForce = Vec2 (0, lenToForce(*frontBoosterDist)).Rotate(angle - PI/6);
         Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
 
         DrawLineV(bottomRight, bottomRight - frontForce, WHITE);
