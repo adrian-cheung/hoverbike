@@ -41,7 +41,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     SimulateBoosters(terrainSegments, deltaTime);
 
     Vec2 forwardForce = Vec2 (1000, 0).Rotate(angle);
-    Vec2 rotateForce = Vec2 (0, -50).Rotate(angle);
+    Vec2 rotateForce = Vec2 (0, -500).Rotate(angle);
     if (IsKeyDown(KEY_SPACE)) {
         Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
         DrawCircleV(leftMiddle, 10, GREEN);
@@ -59,6 +59,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
         DrawCircleV(bottomRight, 10, GREEN);
         ApplyForce(rotateForce, bottomRight, deltaTime);
     }
+
     ApplyForce(vel * -0.5f, pos, deltaTime);
 
     vel += accel * deltaTime;
@@ -78,7 +79,7 @@ void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
     angularAccel += torque / rotInertia;
 }
 
-vector<Vec2> Player::Polygon(Vec2 offset) {
+vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
     vector<Vec2> unTranslatedPoints = {
             {-dimens.x, -dimens.y},
             {dimens.x, -dimens.y},
@@ -86,7 +87,7 @@ vector<Vec2> Player::Polygon(Vec2 offset) {
             {-dimens.x, dimens.y}
     };
 
-    return unTranslatedPoints | MAP({ return pos + offset + (it * 0.5f).Rotate(angle); }) | to_vector{};
+    return unTranslatedPoints | MAP({ return pos + offset + (it * 0.5f).Rotate(angle + angleOffset); }) | to_vector{};
 }
 
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
@@ -147,8 +148,9 @@ void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegme
         return Collision::PolygonTerrain(Polygon(offset), terrainSegments);
     };
 
-    if (!CollidesWithDiff(diff)) {
+    if (!Collision::PolygonTerrain(Polygon(diff, angleDiff), terrainSegments)) {
         pos += diff;
+        angle += angleDiff;
         return;
     }
 
@@ -174,5 +176,27 @@ void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegme
         }
     }
 
+    const auto CollidesAtRotation = [&](float angleOffset){
+        return Collision::PolygonTerrain(Polygon({diffX, diffY}, angleOffset), terrainSegments);
+    };
+
     pos += {diffX, diffY};
+
+    if (!CollidesAtRotation(angleDiff)) {
+        angle += angleDiff;
+        return;
+    }
+
+    float currAngleDiff = 0.0f;
+    const float ANGLE_STEP = 0.5f;
+    int angleDiffSign = std::signbit(angleDiff);
+    for (int i = 0; i < (int) (std::abs(angleDiff) / ANGLE_STEP); i++) {
+        currAngleDiff += ANGLE_STEP * (float) angleDiffSign;
+        if (CollidesAtRotation(currAngleDiff)) {
+            currAngleDiff -= ANGLE_STEP * (float) angleDiffSign;
+//            angularVel = 0;
+            break;
+        }
+    }
+    angle += currAngleDiff;
 }

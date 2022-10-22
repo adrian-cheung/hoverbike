@@ -33,7 +33,7 @@ public:
 
     void Render();
 
-    vector<Vec2> Polygon(Vec2 offset = {0, 0});
+    vector<Vec2> Polygon(Vec2 offset = {0, 0}, float angleOffset = 0);
 
     void MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment>& terrainSegments);
 
