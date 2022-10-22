@@ -7,6 +7,8 @@
 
 class Player {
 public:
+    static constexpr float GRAVITY = 500.0f;
+
     Vec2 pos;
     Vec2 dimens;
     float angle = 0.0f;
@@ -37,7 +39,7 @@ private:
     RayTexture texture = {Paths::Image("HoverCraft")};
     float scale = 25.0f;
 
-    void SimulateBoosters(const vector<TerrainSegment>& terrainSegments);
+    void SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime);
     [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
     Vec2 PlayerToWorldPos(Vec2 playerPos) const;
 };
