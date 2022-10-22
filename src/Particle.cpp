@@ -14,8 +14,8 @@ void Particle::Render() {
 
 }
 
-bool Particle::Update() {
-    position.y = position.y + 5;
+bool Particle::Update(float deltaTime) {
+    position = position + vel * deltaTime;
     size -= 1;
 
     return size <= 0;

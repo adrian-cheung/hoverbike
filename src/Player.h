@@ -37,13 +37,14 @@ public:
 
     void MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment>& terrainSegments);
 
+    [[nodiscard]] Vec2 PlayerToWorldPos(Vec2 playerPos) const;
+
 private:
     RayTexture texture = {Paths::Image("HoverCraft")};
     float scale = 25.0f;
 
     void SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime);
     [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
-    [[nodiscard]] Vec2 PlayerToWorldPos(Vec2 playerPos) const;
 };
 
 

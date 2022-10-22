@@ -76,7 +76,8 @@ int main()
 void Update() {
     float deltaTime = GetFrameTime();
     player->Update(deltaTime, terrainSegments);
-    particles.push_back(Particle({GetMouseX(),GetMouseY() + 50}));
+    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), player->vel));
+    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), player->vel));
 }
 
 //----------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ void UpdateDrawFrame()
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
-        if (particles[i].Update()) {
+        if (particles[i].Update(GetFrameTime())) {
             particles.erase(particles.begin() + i);
         }
 
