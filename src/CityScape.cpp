@@ -6,7 +6,7 @@
 
 void CityScape::Render(Vec2 cameraOffset, float screenWidth, float screenHeight, int buildingWidth) {
     int xOffset = (int) (cameraOffset.x / buildingWidth) / xParralax;
-    int xPixelOffset = std::fmod(cameraOffset.x, (buildingWidth * xParralax)) / xParralax;
+    int xPixelOffset = std::fmod(cameraOffset.x, buildingWidth * xParralax) / xParralax;
     int yPixelOffset = (cameraOffset.y) / yParallax;
 
     int numBuildings = std::ceil(screenWidth / buildingWidth);
