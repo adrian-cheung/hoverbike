@@ -3,6 +3,7 @@
 #include "src/TerrainSegment.h"
 #include "src/Collision.h"
 #include "src/PerlinNoise.h"
+#include "src/CityScape.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -19,6 +20,8 @@ vector<Vec2> terrainPoints = {
         {(float) screenWidth, 600},
 };
 vector<TerrainSegment> terrainSegments;
+CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
+CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -95,6 +98,8 @@ void UpdateDrawFrame()
     ClearBackground(RAYWHITE);
 
     PerlinNoise::Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 15);
+    cityscape1.Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 60);
+    cityscape2.Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 60);
 
     BeginMode2D(camera);
 

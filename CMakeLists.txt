@@ -30,7 +30,7 @@ endif()
 set(CUSTOM_INCLUDES ./includes)
 include_directories(${CUSTOM_INCLUDES})
 
-set(SOURCES main.cpp src/Player.cpp src/Player.h src/resources/Paths.cpp src/resources/Paths.h includes/Includes.h src/resources/Paths.cpp src/Player.cpp src/TerrainSegment.cpp src/TerrainSegment.h src/Collision.cpp src/Collision.h src/PerlinNoise.h src/PerlinNoise.cpp)
+set(SOURCES main.cpp src/Player.cpp src/Player.h src/resources/Paths.cpp src/resources/Paths.h includes/Includes.h src/resources/Paths.cpp src/Player.cpp src/TerrainSegment.cpp src/TerrainSegment.h src/Collision.cpp src/Collision.h src/PerlinNoise.h src/PerlinNoise.cpp src/CityScape.cpp src/CityScape.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_link_libraries(${PROJECT_NAME} PUBLIC raylib raylib_cpp)
