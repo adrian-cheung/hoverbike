@@ -18,9 +18,16 @@ struct Particle {
     bool active;
     //vector<Particle> particles;
 
-    Particle(Vec2 pos, Vec2 vel) : position(pos), vel(vel), size(10){};
+    Particle(Vec2 pos, Vec2 vel) : position(pos), vel(vel), size(10)
+    {
+        std::random_device rd;
+        std::mt19937 e2(rd());
+        std::uniform_int_distribution<> dist(0, 360);
+
+        angle = dist(e2);
+    };
     void Render();
-    bool Update(float deltaTime);
+    bool Update(float deltaTime, int frames);
 
 
 };
