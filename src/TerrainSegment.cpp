@@ -5,5 +5,5 @@
 #include "TerrainSegment.h"
 
 void TerrainSegment::Render() const {
-    DrawLineEx(p1, p2, 3.0f, RED);
+    DrawLineEx(p1, p2, 3.0f, BLACK);
 };

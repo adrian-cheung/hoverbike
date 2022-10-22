@@ -2,6 +2,7 @@
 #include "src/Player.h"
 #include "src/TerrainSegment.h"
 #include "src/Collision.h"
+#include "src/PerlinNoise.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -93,6 +94,8 @@ void UpdateDrawFrame()
 
     ClearBackground(RAYWHITE);
 
+    PerlinNoise::Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 15);
+
     BeginMode2D(camera);
 
     Update();
@@ -103,7 +106,7 @@ void UpdateDrawFrame()
 
     player->Render();
 
-    DrawCircle(screenWidth / 2, screenHeight / 2, 10, RED);
+    DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
 
     if (auto underPlayerPoint = Collision::LineTerrainNearest(player->pos, player->pos + Vec2(0, 100), terrainSegments)) {
         DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
@@ -126,9 +129,7 @@ void UpdateDrawFrame()
 
 void UpdatePlayerCamera(int width, int height)
 {
-    float minSpeed = 2;
     float minEffectLength = 10;
-    float speedMultiplier = 0.1f;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
     Vec2 diff = Vector2Subtract(player->pos, camera.target);
@@ -136,10 +137,6 @@ void UpdatePlayerCamera(int width, int height)
 
     if (diffLength > minEffectLength)
     {
-        float speed = fmaxf(speedMultiplier*diffLength, minSpeed);
-        camera.target = Vector2Add(camera.target, Vector2Scale(diff, speed/diffLength));
+        camera.target = player->pos - ((diff / diffLength) * minEffectLength);
     }
-    
-//    camera.offset = (Vec2){ width/2.0f, height/2.0f };
-//    camera.target = player->pos;
 }
