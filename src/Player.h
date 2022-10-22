@@ -18,8 +18,6 @@ public:
     float angularAccel;
 
     Vec2 force;
-    Vec2 forceLeft;
-    Vec2 forceRight;
     float mass = 1.0f;
 
 
@@ -30,8 +28,6 @@ public:
     void Update(float deltaTime, const vector<TerrainSegment>& terrainSegments);
 
     void ApplyForce(Vec2 force, Vec2 point, float deltaTime);
-
-    void ApplyForceCenter(Vec2 force);
 
     void Render();
 
