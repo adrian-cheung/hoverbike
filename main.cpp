@@ -65,7 +65,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
 
-        Update();
+//        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
 
@@ -79,7 +79,7 @@ int main()
 // update method with WASD key movement
 void Update() {
     float deltaTime = GetFrameTime();
-    player->Update(deltaTime);
+    player->Update(deltaTime, terrainSegments);
 }
 
 //----------------------------------------------------------------------------------
@@ -94,6 +94,8 @@ void UpdateDrawFrame()
     ClearBackground(RAYWHITE);
 
     BeginMode2D(camera);
+
+    Update();
 
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
@@ -115,7 +117,8 @@ void UpdateDrawFrame()
         DrawText("Colliding >:O", 10, 450, 30, ORANGE);
     }
 
-    raylib::DrawText("gaming time " + std::to_string(player->angle), 190, 200, 20, LIGHTGRAY);
+    raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
 
     EndDrawing();
     //----------------------------------------------------------------------------------
