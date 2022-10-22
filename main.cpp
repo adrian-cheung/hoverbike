@@ -1,6 +1,7 @@
 #include <Includes.h>
 #include "src/Player.h"
 #include "src/TerrainSegment.h"
+#include "src/Collision.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -77,7 +78,8 @@ int main()
 
 // update method with WASD key movement
 void Update() {
-    player->Update();
+    float deltaTime = GetFrameTime();
+    player->Update(deltaTime);
 }
 
 //----------------------------------------------------------------------------------
@@ -100,6 +102,10 @@ void UpdateDrawFrame()
     player->Render();
 
     DrawCircle(screenWidth / 2, screenHeight / 2, 10, RED);
+
+    if (auto underPlayerPoint = Collision::LineTerrainNearest(player->pos, player->pos + Vec2(0, 100), terrainSegments)) {
+        DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
+    }
 
     DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
 

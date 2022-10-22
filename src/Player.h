@@ -11,7 +11,7 @@ public:
 
     explicit Player(Vec2 pos) : pos(pos) {}
 
-    void Update();
+    void Update(float deltaTime);
 	void Render();
 private:
 	RayTexture texture = { Paths::Image("HoverCraft") };
