@@ -38,4 +38,23 @@ using optional = std::optional<T>;
 
 #define MAP(X) transform([&](auto it) X)
 
+
+// vectorization of ranges ===============================
+struct to_vector {
+};
+
+// This actually does the work
+template <typename T>
+auto operator|(T&& r, to_vector helper) {
+    std::vector<std::ranges::range_value_t<decltype(r)>> v;
+
+    if constexpr(std::ranges::sized_range<decltype(r)>) {
+        v.reserve(std::ranges::size(r));
+    }
+
+    std::ranges::copy(r, std::back_inserter(v));
+
+    return v;
+}
+
 #endif //THEGAME_INCLUDES_H
