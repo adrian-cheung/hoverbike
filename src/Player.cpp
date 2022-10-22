@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Util.h"
 
 void Player::Render() {
 	texture.Draw(
@@ -30,4 +31,17 @@ void Player::Update(float deltaTime) {
     float tiltSpeed = 5.0f;
     if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed; }
     if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed; }
+}
+
+vector<Vec2> Player::Polygon() {
+    Vec2 diff = (Vec2((float) texture.width, (float) texture.height) * scale * 0.5f);
+
+    return Util::ToVector(
+        vector<Vec2> {
+            {-diff.x, -diff.y},
+            {diff.x, -diff.y},
+            {diff.x, diff.y},
+            {-diff.x, diff.y}
+        } | MAP({ return pos + it.Rotate(angle * DEG2RAD); })
+    );
 }

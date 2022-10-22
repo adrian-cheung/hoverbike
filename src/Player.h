@@ -13,6 +13,7 @@ public:
 
     void Update(float deltaTime);
 	void Render();
+    vector<Vec2> Polygon();
 private:
 	RayTexture texture = { Paths::Image("HoverCraft") };
     float scale = 25.0f;

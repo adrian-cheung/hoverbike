@@ -81,7 +81,15 @@ void UpdateDrawFrame()
         DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
     }
 
-    DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    for (const auto& p : player->Polygon()) {
+        DrawCircleV(p, 3.0f, PURPLE);
+    }
+
+    if (Collision::PolygonTerrain(player->Polygon(), terrainSegments)) {
+        DrawText("Colliding >:O", 10, 450, 30, ORANGE);
+    }
+
+    raylib::DrawText("gaming time " + std::to_string(player->angle), 190, 200, 20, LIGHTGRAY);
 
     EndDrawing();
     //----------------------------------------------------------------------------------

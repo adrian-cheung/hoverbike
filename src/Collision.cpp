@@ -20,3 +20,13 @@ std::optional<Vec2> Collision::LineTerrainNearest(Vec2 origin, Vec2 rayEnd, cons
     }
     return nearest;
 }
+
+bool Collision::PolygonTerrain(const vector<Vec2> &points, const vector<TerrainSegment> &terrainSegments) {
+    for (int i = 0; i < points.size(); i++) {
+        // inefficient, but doesn't matter :)
+        if (auto collision = LineTerrainNearest(points[i], points[(i + 1) % points.size()], terrainSegments)) {
+            return true;
+        }
+    }
+    return false;
+}
