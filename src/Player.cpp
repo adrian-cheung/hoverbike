@@ -33,7 +33,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed * deltaTime; }
     if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed * deltaTime; }
 
-    SimulateBoosters(terrainSegments);
+    SimulateBoosters(terrainSegments, deltaTime);
 
     Vec2 forwardForce = Vec2 (20, 0).Rotate(angle);
     Vec2 rotateForce = Vec2 (0, -5).Rotate(angle);
@@ -52,7 +52,6 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     if (IsKeyDown(KEY_X)) {
         Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
         DrawCircleV(bottomRight, 10, GREEN);
-
         ApplyForce(rotateForce, bottomRight, deltaTime);
     }
 
@@ -60,7 +59,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     angularVel += angularAccel * deltaTime;
     angle += angularVel * deltaTime;
     pos += vel * deltaTime;
-    accel = 0;
+    accel = Vec2(0, GRAVITY);
     angularAccel = 0;
 
 }
@@ -69,7 +68,8 @@ void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
     Vec2 r = point - pos;
 
 //    Vec2 torque = r.cross(force);
-    float torque = r.x * force.y - r.y * force.x;
+    float torqueMultiplier = 0.1f;
+    float torque = (r.x * force.y - r.y * force.x) * torqueMultiplier;
     float rotInertia = mass * (dimens.x * dimens.x + dimens.y * dimens.y) / 12.0f;
 
     accel = force / mass;
@@ -88,7 +88,7 @@ vector<Vec2> Player::Polygon() {
     );
 }
 
-void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments) {
+void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
     optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir, maxLen, terrainSegments);
@@ -96,10 +96,24 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments) {
 
     if (backBoosterDist) {
         raylib::DrawText(std::to_string(*backBoosterDist), 50, 50, 30, BLUE);
+
+        Vec2 backForce = Vec2 (0, -pow(maxLen - *backBoosterDist, 2) / 50).Rotate(angle + PI/6);
+        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
+
+        DrawLineV(bottomLeft, bottomLeft - backForce, WHITE);
+        DrawCircleV(bottomLeft, 10, RED);
+        ApplyForce(backForce, bottomLeft, deltaTime);
     }
 
     if (frontBoosterDist) {
         raylib::DrawText(std::to_string(*frontBoosterDist), 50, 150, 30, BLUE);
+
+        Vec2 frontForce = Vec2 (0, -pow(maxLen - *frontBoosterDist, 2) / 50).Rotate(angle - PI/6);
+        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
+
+        DrawLineV(bottomRight, bottomRight - frontForce, WHITE);
+        DrawCircleV(bottomRight, 10, RED);
+        ApplyForce(frontForce, bottomRight, deltaTime);
     }
 }
 
