@@ -57,8 +57,10 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
     angularVel *= 0.95f;
-    angle += angularVel * deltaTime;
-    pos += vel * deltaTime;
+//    angle += angularVel * deltaTime;
+
+    MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
+//    pos += vel * deltaTime;
     accel = Vec2(0, GRAVITY);
     angularAccel = 0;
 
@@ -75,7 +77,7 @@ void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
     angularAccel = torque / rotInertia;
 }
 
-vector<Vec2> Player::Polygon() {
+vector<Vec2> Player::Polygon(Vec2 offset) {
     vector<Vec2> unTranslatedPoints = {
             {-dimens.x, -dimens.y},
             {dimens.x, -dimens.y},
@@ -83,7 +85,7 @@ vector<Vec2> Player::Polygon() {
             {-dimens.x, dimens.y}
     };
 
-    return unTranslatedPoints | MAP({ return pos + (it * 0.5f).Rotate(angle); }) | to_vector{};
+    return unTranslatedPoints | MAP({ return pos + offset + (it * 0.5f).Rotate(angle); }) | to_vector{};
 }
 
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
@@ -135,4 +137,39 @@ optional<float> Player::BoosterRayCastDist(Vec2 playerPoint, float dir, float ma
 
 Vec2 Player::PlayerToWorldPos(Vec2 playerPoint) const {
     return pos + playerPoint.Rotate(angle);
+}
+
+void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment> &terrainSegments) {
+    const auto CollidesWithDiff = [&](Vec2 offset){
+        return Collision::PolygonTerrain(Polygon(offset), terrainSegments);
+    };
+
+    if (!CollidesWithDiff(diff)) {
+        pos += diff;
+        return;
+    }
+
+    const float STEP_LEN = 0.5f;
+
+    float diffX = 0;
+    for (int i = 0; i < (int) (diff.x / STEP_LEN); i++) {
+        diffX += STEP_LEN;
+        if (CollidesWithDiff({diffX, 0})) {
+            diffX -= STEP_LEN;
+            vel.x = 0;
+            break;
+        }
+    }
+
+    float diffY = 0;
+    for (int i = 0; i < (int) (diff.y / STEP_LEN); i++) {
+        diffY += STEP_LEN;
+        if (CollidesWithDiff({diffX, diffY})) {
+            diffY -= STEP_LEN;
+            vel.y = 0;
+            break;
+        }
+    }
+
+    pos += {diffX, diffY};
 }

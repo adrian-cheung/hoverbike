@@ -33,7 +33,9 @@ public:
 
     void Render();
 
-    vector<Vec2> Polygon();
+    vector<Vec2> Polygon(Vec2 offset = {0, 0});
+
+    void MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment>& terrainSegments);
 
 private:
     RayTexture texture = {Paths::Image("HoverCraft")};
@@ -41,7 +43,7 @@ private:
 
     void SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime);
     [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
-    Vec2 PlayerToWorldPos(Vec2 playerPos) const;
+    [[nodiscard]] Vec2 PlayerToWorldPos(Vec2 playerPos) const;
 };
 
 
