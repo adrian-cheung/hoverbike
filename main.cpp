@@ -115,19 +115,18 @@ void UpdateDrawFrame()
 
 void UpdatePlayerCamera(int width, int height)
 {
-    static float minSpeed = 0;
-    static float minEffectLength = 0;
-    static float fractionSpeed = 0.9f;
-    static float multiplier = 0.1f;
+    float minSpeed = 2;
+    float minEffectLength = 10;
+    float speedMultiplier = 0.1f;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
     Vec2 diff = Vector2Subtract(player->pos, camera.target);
-    float length = Vector2Length(diff);
+    float diffLength = Vector2Length(diff);
 
-    if (length > minEffectLength)
+    if (diffLength > minEffectLength)
     {
-        float speed = fmaxf(fractionSpeed*length, minSpeed);
-        camera.target = Vector2Add(camera.target, Vector2Scale(diff, multiplier*speed/length));
+        float speed = fmaxf(speedMultiplier*diffLength, minSpeed);
+        camera.target = Vector2Add(camera.target, Vector2Scale(diff, speed/diffLength));
     }
     
 //    camera.offset = (Vec2){ width/2.0f, height/2.0f };
