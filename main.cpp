@@ -99,6 +99,8 @@ void UpdateDrawFrame()
 
     player->Render();
 
+    DrawCircle(screenWidth / 2, screenHeight / 2, 10, RED);
+
     DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
 
     EndDrawing();
@@ -107,27 +109,21 @@ void UpdateDrawFrame()
 
 void UpdatePlayerCamera(int width, int height)
 {
-//    // Camera
-//    //----------------------------------------------------------------------------------
-//    static raylib::Camera2D camera({(float) screenWidth / 2.0f, (float) screenHeight / 2.0f}, {0, 0}, 0.0f, 1.0f);
-//    camera.target = player->pos;
-//    camera.offset = {0, 0};
-//    camera.zoom = 1.0f;
-//    BeginMode2D(camera);
-////    raylib::DrawPoly(terrainPoints.data(), terrainPoints.size(), GREEN);
-//    EndMode2D();
-//    //----------------------------------------------------------------------------------
-//    static Vector2 bbox = { 0.2f, 0.2f };
-//
-//    Vector2 bboxWorldMin = GetScreenToWorld2D((Vector2){ (1 - bbox.x)*0.5f*width, (1 - bbox.y)*0.5f*height }, camera);
-//    Vector2 bboxWorldMax = GetScreenToWorld2D((Vector2){ (1 + bbox.x)*0.5f*width, (1 + bbox.y)*0.5f*height }, camera);
-//    camera.offset = (Vector2){ (1 - bbox.x)*0.5f * width, (1 - bbox.y)*0.5f*height };
-//
-//    if (player->pos.x < bboxWorldMin.x) camera.target.x = player->pos.x;
-//    if (player->pos.y < bboxWorldMin.y) camera.target.y = player->pos.y;
-//    if (player->pos.x > bboxWorldMax.x) camera.target.x = bboxWorldMin.x + (player->pos.x - bboxWorldMax.x);
-//    if (player->pos.y > bboxWorldMax.y) camera.target.y = bboxWorldMin.y + (player->pos.y - bboxWorldMax.y);
+    static float minSpeed = 0;
+    static float minEffectLength = 0;
+    static float fractionSpeed = 0.9f;
+    static float multiplier = 0.1f;
 
-    camera.offset = (Vector2){ width/2.0f, height/2.0f };
-    camera.target = player->pos;
+    camera.offset = (Vec2){ width/2.0f, height/2.0f };
+    Vector2 diff = Vector2Subtract(player->pos, camera.target);
+    float length = Vector2Length(diff);
+
+    if (length > minEffectLength)
+    {
+        float speed = fmaxf(fractionSpeed*length, minSpeed);
+        camera.target = Vector2Add(camera.target, Vector2Scale(diff, multiplier*speed/length));
+    }
+    
+//    camera.offset = (Vector2){ width/2.0f, height/2.0f };
+//    camera.target = player->pos;
 }
