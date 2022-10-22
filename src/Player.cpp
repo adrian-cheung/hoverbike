@@ -17,7 +17,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     // gravity :)
     accel.y += GRAVITY;
-    
+
     //user input
     float speed = 300.0f;
 
@@ -40,7 +40,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     SimulateBoosters(terrainSegments, deltaTime);
 
-    Vec2 forwardForce = Vec2 (80, 0).Rotate(angle);
+    Vec2 forwardForce = Vec2 (1000, 0).Rotate(angle);
     Vec2 rotateForce = Vec2 (0, -50).Rotate(angle);
     if (IsKeyDown(KEY_SPACE)) {
         Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
