@@ -76,6 +76,7 @@ int main()
 void Update() {
     float deltaTime = GetFrameTime();
     player->Update(deltaTime, terrainSegments);
+    particles.push_back(Particle({GetMouseX(),GetMouseY() + 50}));
 }
 
 //----------------------------------------------------------------------------------
@@ -102,7 +103,15 @@ void UpdateDrawFrame()
     }
 
     player->Render();
-    Particle::Render();
+    for(int i = 0; i < particles.size(); i++) {
+        particles[i].Render();
+
+        if (particles[i].Update()) {
+            particles.erase(particles.begin() + i);
+        }
+
+
+    }
 
 
     DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
