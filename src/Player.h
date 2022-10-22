@@ -7,7 +7,7 @@
 
 class Player {
 public:
-    static constexpr float GRAVITY = 500.0f;
+    static constexpr float GRAVITY = 1000.0f;
 
     Vec2 pos;
     Vec2 dimens;

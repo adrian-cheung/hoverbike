@@ -40,24 +40,31 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     SimulateBoosters(terrainSegments, deltaTime);
 
-    Vec2 forwardForce = Vec2 (1000, 0).Rotate(angle);
+    Vec2 forwardForce = Vec2 (500, 0).Rotate(angle);
     Vec2 rotateForce = Vec2 (0, -500).Rotate(angle);
     if (IsKeyDown(KEY_SPACE)) {
         Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
         DrawCircleV(leftMiddle, 10, GREEN);
         ApplyForce(forwardForce, leftMiddle, deltaTime);
     }
+//    if (IsKeyDown(KEY_Z)) {
+//        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
+//        DrawCircleV(bottomLeft, 10, GREEN);
+//        ApplyForce(rotateForce, bottomLeft, deltaTime);
+//    }
+//    if (IsKeyDown(KEY_X)) {
+//        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
+//        DrawCircleV(bottomRight, 10, GREEN);
+//        ApplyForce(rotateForce, bottomRight, deltaTime);
+//    }
+
     if (IsKeyDown(KEY_Z)) {
-//        Vec2 bottomLeft = {pos.x - dimens.x / 2.0f * cos(angle) - dimens.y / 2.0f * sin(angle),
-//                           pos.y + dimens.y / 2.0f * cos(angle) - dimens.x / 2.0f * sin(angle)};
-        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
-        DrawCircleV(bottomLeft, 10, GREEN);
-        ApplyForce(rotateForce, bottomLeft, deltaTime);
+        angularVel -= 0.5f;
+//        angularAccel -= 0.1f;
     }
     if (IsKeyDown(KEY_X)) {
-        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
-        DrawCircleV(bottomRight, 10, GREEN);
-        ApplyForce(rotateForce, bottomRight, deltaTime);
+        angularVel += 0.5f;
+//        angularAccel += 0.1f;
     }
 
     ApplyForce(vel * -0.5f, pos, deltaTime);
@@ -93,14 +100,14 @@ vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
-    float angleOffset = PI / 12.0f;
+    float angleOffset = 0;
 
     optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + angleOffset, maxLen, terrainSegments);
     optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - angleOffset, maxLen, terrainSegments);
 
     // sigmoid function
     const auto lenToForce = [&](float len){
-        return -1000.0f / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
+        return -(GRAVITY * 1.5f) / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
         //        return -(maxLen - len) * 10.0f;
     };
 
