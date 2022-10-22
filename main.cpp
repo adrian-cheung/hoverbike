@@ -9,12 +9,23 @@
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-int screenWidth = 1920 / 2;
-int screenHeight = 1080 / 2;
-float screenWidthF = (float) screenWidth;
-float screenHeightF = (float) screenHeight;
+const int screenWidth = 1920 / 2;
+const int screenHeight = 1080 / 2;
+const float screenWidthF = (float) screenWidth;
+const float screenHeightF = (float) screenHeight;
+
+const int virtualScreenWidth = screenWidth / 8;
+const int virtualScreenHeight = screenHeight / 8;
+const float virtualRatio = (float)screenWidth/(float)virtualScreenWidth;
+
+Rectangle sourceRec;
+Rectangle destRec;
+
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
+Camera2D pixelCamera = { 0 };
+RenderTexture2D target;
+
 vector<TerrainSegment> terrainSegments;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
@@ -36,6 +47,7 @@ int main()
 
     // Initialization
     //--------------------------------------------------------------------------------------
+
     raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
 
@@ -60,14 +72,20 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    target = LoadRenderTexture(virtualScreenWidth, virtualScreenHeight);
+    sourceRec = { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
+    destRec = { -virtualRatio, -virtualRatio, screenWidth + (virtualRatio*2), screenHeight + (virtualRatio*2) };
+
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
-
 //        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
     }
+//    UnloadRenderTexture(target);    // Unload render texture
+//
+//    CloseWindow();
 
     return 0;
 }
@@ -83,9 +101,11 @@ void Update() {
 //----------------------------------------------------------------------------------
 void UpdateDrawFrame()
 {
+    BeginTextureMode(target);
+
     // Draw
     //----------------------------------------------------------------------------------
-    BeginDrawing();
+//    BeginDrawing();
 
     ClearBackground(RAYWHITE);
 
@@ -104,7 +124,6 @@ void UpdateDrawFrame()
     player->Render();
     Particle::Render();
 
-
     DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
 
     if (auto underPlayerPoint = Collision::LineTerrainNearest(player->pos, player->pos + Vec2(0, 100), terrainSegments)) {
@@ -122,12 +141,31 @@ void UpdateDrawFrame()
     raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
     raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
 
+//    EndDrawing();
+
+    EndTextureMode();
+
+    BeginDrawing();
+    BeginMode2D(pixelCamera);
+    DrawTexturePro(target.texture, sourceRec, destRec, { 0, 0 }, 0.0f, WHITE);
+    EndMode2D();
     EndDrawing();
+
     //----------------------------------------------------------------------------------
 }
 
 void UpdatePlayerCamera(int width, int height)
 {
+    pixelCamera.target = camera.target;
+
+    camera.target.x = (int)pixelCamera.target.x;
+    pixelCamera.target.x -= camera.target.x;
+    pixelCamera.target.x *= virtualRatio;
+
+    camera.target.y = (int)pixelCamera.target.y;
+    pixelCamera.target.y -= camera.target.y;
+    pixelCamera.target.y *= virtualRatio;
+    
     float minEffectLength = 10;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
