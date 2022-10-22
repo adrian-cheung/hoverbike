@@ -14,7 +14,7 @@ void Player::Render() {
 
 void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegments) {
     //user input
-    float speed = 5.0f;
+    float speed = 300.0f;
 
     if (IsKeyDown(KEY_W)) {
         pos.y -= speed * deltaTime;
@@ -29,7 +29,7 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
         pos.x += speed * deltaTime;
     }
 
-    float tiltSpeed = 5.0f * DEG2RAD;
+    float tiltSpeed = 200.0f * DEG2RAD;
     if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed * deltaTime; }
     if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed * deltaTime; }
 

@@ -13,11 +13,6 @@ float screenWidthF = (float) screenWidth;
 float screenHeightF = (float) screenHeight;
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
-vector<Vec2> terrainPoints = {
-        {0, 600},
-        {(float) screenWidth / 2.0f, 700},
-        {(float) screenWidth, 600},
-};
 vector<TerrainSegment> terrainSegments;
 
 //----------------------------------------------------------------------------------
@@ -52,13 +47,8 @@ int main()
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-//    std::vector<int> v = {1, 2, 3, 4, 5};
-//    for (int n : v | std::views::take(3)) {
-//        printf("%i\n", n);
-//    }
-
     camera.target = player->pos;
-    camera.offset = (Vec2){ screenWidth/2.0f, screenHeight/2.0f };
+    camera.offset = (Vec2){ screenWidthF / 2.0f, screenHeightF / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -69,9 +59,6 @@ int main()
 //        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
-
-//        UpdatePlayerCamera();
-//        UpdateCamera();
     }
 
     return 0;
