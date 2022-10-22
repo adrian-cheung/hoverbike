@@ -93,19 +93,21 @@ vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
-    optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + PI / 6.0f, maxLen, terrainSegments);
-    optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - PI / 6.0f, maxLen, terrainSegments);
+    float angleOffset = PI / 12.0f;
+
+    optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + angleOffset, maxLen, terrainSegments);
+    optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - angleOffset, maxLen, terrainSegments);
 
     // sigmoid function
     const auto lenToForce = [&](float len){
-        return -2000.0f / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
+        return -1000.0f / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
         //        return -(maxLen - len) * 10.0f;
     };
 
     if (backBoosterDist) {
         raylib::DrawText(std::to_string(*backBoosterDist), 50, 50, 30, BLUE);
 
-        Vec2 backForce = Vec2 (0, lenToForce(*backBoosterDist)).Rotate(angle + PI/6);
+        Vec2 backForce = Vec2 (0, lenToForce(*backBoosterDist)).Rotate(angle + angleOffset);
         Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
 
         DrawLineV(bottomLeft, bottomLeft - backForce, WHITE);
@@ -116,7 +118,7 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, flo
     if (frontBoosterDist) {
         raylib::DrawText(std::to_string(*frontBoosterDist), 50, 150, 30, BLUE);
 
-        Vec2 frontForce = Vec2 (0, lenToForce(*frontBoosterDist)).Rotate(angle - PI/6);
+        Vec2 frontForce = Vec2 (0, lenToForce(*frontBoosterDist)).Rotate(angle - angleOffset);
         Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
 
         DrawLineV(bottomRight, bottomRight - frontForce, WHITE);
