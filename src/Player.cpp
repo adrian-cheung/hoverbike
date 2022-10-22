@@ -2,7 +2,7 @@
 
 void Player::Render() {
 	texture.Draw(
-            RectF {0, 0, 2, 2},
+            RectF {0, 0, (float) texture.width, (float) texture.height},
             {pos.x, pos.y, (float) texture.width * scale, (float) texture.height * scale},
             {(float) texture.width * scale / 2.0f, (float) texture.height * scale / 2.0f},
             angle,

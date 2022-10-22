@@ -7,14 +7,15 @@
 class Player {
 public:
 	Vec2 pos;
+    float angle = 0.0f;
 
-	RayTexture texture = { Paths::Image("player.png") };
+    explicit Player(Vec2 pos) : pos(pos) {}
 
     void Update();
 	void Render();
 private:
-    float angle = 0.0f;
-    float scale = 100.0f;
+	RayTexture texture = { Paths::Image("HoverCraft") };
+    float scale = 25.0f;
 };
 
 
