@@ -9,12 +9,15 @@
 
 void Particle::Render() {
 
-    DrawCircle(150,150,30,RED);
+    DrawCircle(position.x , position.y , size, RED);
+
 
 }
 
-void Particle::Update(float deltaTime, const vector<TerrainSegment>& terrainSegments) {
+bool Particle::Update() {
+    position.y = position.y + 5;
+    size -= 1;
 
-
+    return size <= 0;
 
 }

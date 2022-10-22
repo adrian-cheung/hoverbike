@@ -18,7 +18,7 @@ Camera2D camera = { 0 };
 vector<TerrainSegment> terrainSegments;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
-vector<Particle> particle;
+vector<Particle> particles;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration

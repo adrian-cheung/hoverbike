@@ -15,10 +15,12 @@ struct Particle {
     float size;
     float angle;
     bool active;
+    //vector<Particle> particles;
 
+    Particle(Vec2 pos) : position(pos), size(10){};
+    void Render();
+    bool Update();
 
-    static void Render();
-    void Update(float deltaTime, const vector<TerrainSegment>& terrainSegments);
 
 };
 
