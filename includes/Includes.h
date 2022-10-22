@@ -26,4 +26,10 @@ using namespace std::views;
 using namespace std::literals::string_literals;
 using namespace std::literals::string_view_literals;
 
+template <typename T>
+using vector = std::vector<T>;
+
+template <typename T>
+using shared_ptr = std::shared_ptr<T>;
+
 #endif //THEGAME_INCLUDES_H

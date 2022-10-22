@@ -6,7 +6,12 @@
 //----------------------------------------------------------------------------------
 int screenWidth = 1920 / 2;
 int screenHeight = 1080 / 2;
-std::shared_ptr<Player> player;
+shared_ptr<Player> player;
+vector<Vec2> terrainPoints = {
+        {0, 600},
+        {(float) screenWidth / 2.0f, 700},
+        {(float) screenWidth, 600},
+};
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -20,11 +25,6 @@ void Update();
 int main()
 {
 
-    [](){std::cout << "helloge testing" << std::endl; }();
-    std::vector<int> v = {1, 2, 3};
-    for (int n : v | reverse | take(2)) {
-        std::cout << n << '\n';
-    }
 
     // Initialization
     //--------------------------------------------------------------------------------------
