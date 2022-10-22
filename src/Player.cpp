@@ -10,7 +10,7 @@ void Player::Render() {
     );
 }
 
-void Player::Update() {
+void Player::Update(float deltaTime) {
     //user input
     float speed = 5.0f;
 
