@@ -10,8 +10,9 @@
 
 class Collision {
 public:
-    static std::optional<Vec2> LineLine(Vec2 l1P1, Vec2 l1P2, Vec2 l2P1, Vec2 l2P2);
-    static std::optional<Vec2> LineTerrainNearest(Vec2 p1, Vec2 p2, const vector<TerrainSegment>& terrainSegments);
+    static optional<Vec2> LineLine(Vec2 l1P1, Vec2 l1P2, Vec2 l2P1, Vec2 l2P2);
+    static optional<Vec2> LineTerrainNearest(Vec2 p1, Vec2 p2, const vector<TerrainSegment>& terrainSegments);
+    static bool PolygonTerrain(const vector<Vec2>& points, const vector<TerrainSegment>& terrainSegments);
 };
 
 

@@ -3,6 +3,7 @@
 
 #include <Includes.h>
 #include "resources/Paths.h"
+#include "TerrainSegment.h"
 
 class Player {
 public:
@@ -23,10 +24,10 @@ public:
 
 
     explicit Player(Vec2 pos) : pos(pos) {
-        dimens = {{texture.width * scale, texture.height * scale}};
+        dimens = Vec2((float) texture.width, (float) texture.height) * scale;
     }
 
-    void Update(float deltaTime);
+    void Update(float deltaTime, const vector<TerrainSegment>& terrainSegments);
 
     void ApplyForce(Vec2 force, Vec2 point, float deltaTime);
 
@@ -34,9 +35,15 @@ public:
 
     void Render();
 
+    vector<Vec2> Polygon();
+
 private:
     RayTexture texture = {Paths::Image("HoverCraft")};
     float scale = 25.0f;
+
+    void SimulateBoosters(const vector<TerrainSegment>& terrainSegments);
+    [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
+    Vec2 PlayerToWorldPos(Vec2 playerPos) const;
 };
 
 

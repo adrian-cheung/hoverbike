@@ -2,6 +2,7 @@
 #include "src/Player.h"
 #include "src/TerrainSegment.h"
 #include "src/Collision.h"
+#include "src/PerlinNoise.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -65,7 +66,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
 
-        Update();
+//        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
 
@@ -79,7 +80,7 @@ int main()
 // update method with WASD key movement
 void Update() {
     float deltaTime = GetFrameTime();
-    player->Update(deltaTime);
+    player->Update(deltaTime, terrainSegments);
 }
 
 //----------------------------------------------------------------------------------
@@ -93,7 +94,11 @@ void UpdateDrawFrame()
 
     ClearBackground(RAYWHITE);
 
+    PerlinNoise::Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 15);
+
     BeginMode2D(camera);
+
+    Update();
 
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
@@ -101,13 +106,22 @@ void UpdateDrawFrame()
 
     player->Render();
 
-    DrawCircle(screenWidth / 2, screenHeight / 2, 10, RED);
+    DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
 
     if (auto underPlayerPoint = Collision::LineTerrainNearest(player->pos, player->pos + Vec2(0, 100), terrainSegments)) {
         DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
     }
 
-    DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    for (const auto& p : player->Polygon()) {
+        DrawCircleV(p, 3.0f, PURPLE);
+    }
+
+    if (Collision::PolygonTerrain(player->Polygon(), terrainSegments)) {
+        DrawText("Colliding >:O", 10, 450, 30, ORANGE);
+    }
+
+    raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
 
     EndDrawing();
     //----------------------------------------------------------------------------------
@@ -115,9 +129,7 @@ void UpdateDrawFrame()
 
 void UpdatePlayerCamera(int width, int height)
 {
-    float minSpeed = 2;
     float minEffectLength = 10;
-    float speedMultiplier = 0.1f;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
     Vec2 diff = Vector2Subtract(player->pos, camera.target);
@@ -125,10 +137,6 @@ void UpdatePlayerCamera(int width, int height)
 
     if (diffLength > minEffectLength)
     {
-        float speed = fmaxf(speedMultiplier*diffLength, minSpeed);
-        camera.target = Vector2Add(camera.target, Vector2Scale(diff, speed/diffLength));
+        camera.target = player->pos - ((diff / diffLength) * minEffectLength);
     }
-    
-//    camera.offset = (Vec2){ width/2.0f, height/2.0f };
-//    camera.target = player->pos;
 }
