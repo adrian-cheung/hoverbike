@@ -11,6 +11,7 @@
 //----------------------------------------------------------------------------------
 int screenWidth = 1920 / 2;
 int screenHeight = 1080 / 2;
+int frames = 0;
 float screenWidthF = (float) screenWidth;
 float screenHeightF = (float) screenHeight;
 shared_ptr<Player> player;
@@ -74,10 +75,13 @@ int main()
 
 // update method with WASD key movement
 void Update() {
+    frames = ++frames % 60;
     float deltaTime = GetFrameTime();
     player->Update(deltaTime, terrainSegments);
-    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), player->vel));
-    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), player->vel));
+    if (frames % 3 == 0) {
+        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), {0, 25}));
+        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), {0, 25}));
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -107,7 +111,7 @@ void UpdateDrawFrame()
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
-        if (particles[i].Update(GetFrameTime())) {
+        if (particles[i].Update(GetFrameTime(), frames)) {
             particles.erase(particles.begin() + i);
         }
 
