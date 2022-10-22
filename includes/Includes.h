@@ -37,4 +37,6 @@ using shared_ptr = std::shared_ptr<T>;
 template <typename T>
 using optional = std::optional<T>;
 
+#define MAP(X) transform([&](auto it) X)
+
 #endif //THEGAME_INCLUDES_H

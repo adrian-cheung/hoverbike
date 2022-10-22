@@ -14,11 +14,6 @@ float screenWidthF = (float) screenWidth;
 float screenHeightF = (float) screenHeight;
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
-vector<Vec2> terrainPoints = {
-        {0, 600},
-        {(float) screenWidth / 2.0f, 700},
-        {(float) screenWidth, 600},
-};
 vector<TerrainSegment> terrainSegments;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
@@ -55,13 +50,8 @@ int main()
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-//    std::vector<int> v = {1, 2, 3, 4, 5};
-//    for (int n : v | std::views::take(3)) {
-//        printf("%i\n", n);
-//    }
-
     camera.target = player->pos;
-    camera.offset = (Vec2){ screenWidth/2.0f, screenHeight/2.0f };
+    camera.offset = (Vec2){ screenWidthF / 2.0f, screenHeightF / 2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -69,12 +59,9 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
 
-        Update();
+//        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
-
-//        UpdatePlayerCamera();
-//        UpdateCamera();
     }
 
     return 0;
@@ -83,7 +70,7 @@ int main()
 // update method with WASD key movement
 void Update() {
     float deltaTime = GetFrameTime();
-    player->Update(deltaTime);
+    player->Update(deltaTime, terrainSegments);
 }
 
 //----------------------------------------------------------------------------------
@@ -103,6 +90,8 @@ void UpdateDrawFrame()
 
     BeginMode2D(camera);
 
+    Update();
+
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
     }
@@ -115,7 +104,16 @@ void UpdateDrawFrame()
         DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
     }
 
-    DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    for (const auto& p : player->Polygon()) {
+        DrawCircleV(p, 3.0f, PURPLE);
+    }
+
+    if (Collision::PolygonTerrain(player->Polygon(), terrainSegments)) {
+        DrawText("Colliding >:O", 10, 450, 30, ORANGE);
+    }
+
+    raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
+    raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
 
     EndDrawing();
     //----------------------------------------------------------------------------------
