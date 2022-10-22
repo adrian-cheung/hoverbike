@@ -40,9 +40,12 @@ int main()
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
 
     vector<Vec2> terrainPoints = {
+            {screenWidthF * -1, 0.0f},
             {0, screenHeightF * 0.7f},
             {screenWidthF / 2.0f, screenHeightF * 0.75f},
             {screenWidthF, screenHeightF * 0.7f},
+            {screenWidthF * 3, screenHeightF * 0.73f},
+            {screenWidthF * 20, screenHeightF * 0.7f},
     };
     terrainSegments.reserve(terrainPoints.size() - 1);
     for (int i = 0; i < terrainPoints.size() - 1; i++) {
