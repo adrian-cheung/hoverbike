@@ -35,35 +35,45 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
 
     SimulateBoosters(terrainSegments);
 
+    Vec2 forwardForce = Vec2 (20, 0).Rotate(angle);
+    Vec2 rotateForce = Vec2 (0, -5).Rotate(angle);
+    if (IsKeyDown(KEY_SPACE)) {
+        Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
+        DrawCircleV(leftMiddle, 10, GREEN);
+        ApplyForce(forwardForce, leftMiddle, deltaTime);
+    }
     if (IsKeyDown(KEY_Z)) {
-        Vec2 bottomLeft = {pos.x - dimens.x / 2.0f * cos(angle) - dimens.y / 2.0f * sin(angle),
-                           pos.y + dimens.y / 2.0f * cos(angle) - dimens.x / 2.0f * sin(angle)};
-        ApplyForce({20, -1}, bottomLeft, deltaTime);
+//        Vec2 bottomLeft = {pos.x - dimens.x / 2.0f * cos(angle) - dimens.y / 2.0f * sin(angle),
+//                           pos.y + dimens.y / 2.0f * cos(angle) - dimens.x / 2.0f * sin(angle)};
+        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
+        DrawCircleV(bottomLeft, 10, GREEN);
+        ApplyForce(rotateForce, bottomLeft, deltaTime);
     }
     if (IsKeyDown(KEY_X)) {
-        ApplyForce({20, -1}, {pos.x + dimens.x / 2.0f, pos.y}, deltaTime);
+        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
+        DrawCircleV(bottomRight, 10, GREEN);
+
+        ApplyForce(rotateForce, bottomRight, deltaTime);
     }
+
+    vel += accel * deltaTime;
+    angularVel += angularAccel * deltaTime;
+    angle += angularVel * deltaTime;
+    pos += vel * deltaTime;
+    accel = 0;
+    angularAccel = 0;
 
 }
 
 void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
-    Vec2 r = pos - point;
+    Vec2 r = point - pos;
 
 //    Vec2 torque = r.cross(force);
     float torque = r.x * force.y - r.y * force.x;
     float rotInertia = mass * (dimens.x * dimens.x + dimens.y * dimens.y) / 12.0f;
 
     accel = force / mass;
-    vel += accel * deltaTime;
-    angularAccel += torque / rotInertia;
-    angularVel += angularAccel * deltaTime;
-    angle += angularVel * deltaTime;
-
-    pos += vel * deltaTime;
-}
-
-void Player::ApplyForceCenter(Vec2 force) {
-    accel = force / mass;
+    angularAccel = torque / rotInertia;
 }
 
 vector<Vec2> Player::Polygon() {

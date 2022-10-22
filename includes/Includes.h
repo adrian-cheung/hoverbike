@@ -8,6 +8,7 @@
 #include <memory>
 #include <ranges>
 #include <iostream>
+#include <random>
 #include <assert.h>
 
 // GLOBAL typedefs/aliases -- shorten lengthy type names for more ergonomic coding :)
