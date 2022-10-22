@@ -1,5 +1,6 @@
 #include <Includes.h>
 #include "src/Player.h"
+#include "src/TerrainSegment.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -7,11 +8,7 @@
 int screenWidth = 1920 / 2;
 int screenHeight = 1080 / 2;
 shared_ptr<Player> player;
-vector<Vec2> terrainPoints = {
-        {0, 600},
-        {(float) screenWidth / 2.0f, 700},
-        {(float) screenWidth, 600},
-};
+vector<TerrainSegment> terrainSegments;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -31,13 +28,18 @@ int main()
     raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
     player = std::make_shared<Player>();
 
+    vector<Vec2> terrainPoints = {
+            {0, 300},
+            {(float) screenWidth / 2.0f, 340},
+            {(float) screenWidth, 300},
+    };
+    terrainSegments.reserve(terrainPoints.size() - 1);
+    for (int i = 0; i < terrainPoints.size() - 1; i++) {
+        terrainSegments.push_back({ terrainPoints[i], terrainPoints[i + 1] });
+    }
+
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
-
-//    std::vector<int> v = {1, 2, 3, 4, 5};
-//    for (int n : v | std::views::take(3)) {
-//        printf("%i\n", n);
-//    }
 
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
@@ -51,21 +53,7 @@ int main()
 
 // update method with WASD key movement
 void Update() {
-    //user input
-    float speed = 5.0f;
-
-    if (IsKeyDown(KEY_W)) {
-        player->pos.y -= speed;
-    }
-    if (IsKeyDown(KEY_S)) {
-        player->pos.y += speed;
-    }
-    if (IsKeyDown(KEY_A)) {
-        player->pos.x -= speed;
-    }
-    if (IsKeyDown(KEY_D)) {
-        player->pos.x += speed;
-    }
+    player->Update();
 }
 
 //----------------------------------------------------------------------------------
@@ -78,6 +66,10 @@ void UpdateDrawFrame()
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
+
+    for (const TerrainSegment& terrainSegment : terrainSegments) {
+        terrainSegment.Render();
+    }
 
     player->Render();
 
