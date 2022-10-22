@@ -57,7 +57,7 @@ int main()
 //    }
 
     camera.target = player->pos;
-    camera.offset = (Vector2){ screenWidth/2.0f, screenHeight/2.0f };
+    camera.offset = (Vec2){ screenWidth/2.0f, screenHeight/2.0f };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -121,7 +121,7 @@ void UpdatePlayerCamera(int width, int height)
     static float multiplier = 0.1f;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
-    Vector2 diff = Vector2Subtract(player->pos, camera.target);
+    Vec2 diff = Vector2Subtract(player->pos, camera.target);
     float length = Vector2Length(diff);
 
     if (length > minEffectLength)
@@ -130,6 +130,6 @@ void UpdatePlayerCamera(int width, int height)
         camera.target = Vector2Add(camera.target, Vector2Scale(diff, multiplier*speed/length));
     }
     
-//    camera.offset = (Vector2){ width/2.0f, height/2.0f };
+//    camera.offset = (Vec2){ width/2.0f, height/2.0f };
 //    camera.target = player->pos;
 }
