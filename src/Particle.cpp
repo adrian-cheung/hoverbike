@@ -8,15 +8,15 @@
 
 
 void Particle::Render() {
-
-    DrawCircle(position.x , position.y , size, RED);
-
-
+    DrawRectanglePro({position.x, position.y, size, size},
+                     {size / 2, size / 2}, angle, RayColor(0, 0, 255, 128));
 }
 
-bool Particle::Update(float deltaTime) {
+bool Particle::Update(float deltaTime, int frames) {
     position = position + vel * deltaTime;
-    size -= 1;
+    if (frames % 15 == 0) {
+        size -= 1;
+    }
 
     return size <= 0;
 

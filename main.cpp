@@ -18,6 +18,8 @@ const int virtualRatio = 4;
 const int virtualScreenWidth = screenWidth / virtualRatio;
 const int virtualScreenHeight = screenHeight / virtualRatio;
 
+int frames = 0;
+
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
 Camera2D theOtherCamera = { 0 };
@@ -94,10 +96,13 @@ int main()
 
 // update method with WASD key movement
 void Update() {
+    frames = ++frames % 60;
     float deltaTime = GetFrameTime();
     player->Update(deltaTime, terrainSegments);
-    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), player->vel));
-    particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), player->vel));
+    if (frames % 3 == 0) {
+        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), {0, 25}));
+        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), {0, 25}));
+    }
 }
 
 //----------------------------------------------------------------------------------
@@ -131,7 +136,7 @@ void UpdateDrawFrame()
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
-        if (particles[i].Update(GetFrameTime())) {
+        if (particles[i].Update(GetFrameTime(), frames)) {
             particles.erase(particles.begin() + i);
         }
     }
