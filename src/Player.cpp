@@ -98,7 +98,7 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, flo
 
     // sigmoid function
     const auto lenToForce = [&](float len){
-        return -2000.0f / (1.0f + exp(-(maxLen * 0.3f - len) * 0.2f));
+        return -2000.0f / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
         //        return -(maxLen - len) * 10.0f;
     };
 
