@@ -5,7 +5,7 @@
 #include "PerlinNoise.h"
 
 void PerlinNoise::Render(Vec2 cameraOffset, float screenWidth, float screenHeight, int pixelSize) {
-    int parallaxModifierX = 2;
+    int parallaxModifierX = 10;
     int parallaxModifierY = 10;
     int perlinStrength = 25;
     float perlinModifier = 9.0f;

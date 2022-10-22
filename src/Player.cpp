@@ -83,9 +83,8 @@ vector<Vec2> Player::Polygon() {
             {dimens.x, dimens.y},
             {-dimens.x, dimens.y}
     };
-    return Util::ToVector(
-            unTranslatedPoints | MAP({ return pos + (it * 0.5f).Rotate(angle); })
-    );
+
+    return unTranslatedPoints | MAP({ return pos + (it * 0.5f).Rotate(angle); }) | to_vector{};
 }
 
 void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
