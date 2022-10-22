@@ -1,11 +1,14 @@
 #include <Includes.h>
 #include "src/Player.h"
+#include "src/TerrainSegment.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
 int screenWidth = 1920 / 2;
 int screenHeight = 1080 / 2;
+float screenWidthF = (float) screenWidth;
+float screenHeightF = (float) screenHeight;
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
 vector<Vec2> terrainPoints = {
@@ -13,6 +16,7 @@ vector<Vec2> terrainPoints = {
         {(float) screenWidth / 2.0f, 700},
         {(float) screenWidth, 600},
 };
+vector<TerrainSegment> terrainSegments;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -31,7 +35,17 @@ int main()
     // Initialization
     //--------------------------------------------------------------------------------------
     raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
-    player = std::make_shared<Player>();
+    player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
+
+    vector<Vec2> terrainPoints = {
+            {0, screenHeightF * 0.7f},
+            {screenWidthF / 2.0f, screenHeightF * 0.75f},
+            {screenWidthF, screenHeightF * 0.7f},
+    };
+    terrainSegments.reserve(terrainPoints.size() - 1);
+    for (int i = 0; i < terrainPoints.size() - 1; i++) {
+        terrainSegments.push_back({ terrainPoints[i], terrainPoints[i + 1] });
+    }
 
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -63,21 +77,7 @@ int main()
 
 // update method with WASD key movement
 void Update() {
-    //user input
-    float speed = 5.0f;
-
-    if (IsKeyDown(KEY_W)) {
-        player->pos.y -= speed;
-    }
-    if (IsKeyDown(KEY_S)) {
-        player->pos.y += speed;
-    }
-    if (IsKeyDown(KEY_A)) {
-        player->pos.x -= speed;
-    }
-    if (IsKeyDown(KEY_D)) {
-        player->pos.x += speed;
-    }
+    player->Update();
 }
 
 //----------------------------------------------------------------------------------
@@ -93,9 +93,13 @@ void UpdateDrawFrame()
 
     BeginMode2D(camera);
 
+    for (const TerrainSegment& terrainSegment : terrainSegments) {
+        terrainSegment.Render();
+    }
+
     player->Render();
 
-    DrawText("helloge business", 190, 200, 20, LIGHTGRAY);
+    DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
 
     EndDrawing();
     //----------------------------------------------------------------------------------

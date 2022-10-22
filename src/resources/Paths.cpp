@@ -5,5 +5,5 @@ std::string Paths::Asset(const std::string& subPathFromAssetsDir) {
 }
 
 std::string Paths::Image(const std::string& subPathFromImagesDir) {
-    return assetRoot + "images/"s + subPathFromImagesDir;
+    return assetRoot + "images/"s + subPathFromImagesDir + ".png";
 }
