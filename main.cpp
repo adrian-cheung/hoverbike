@@ -232,6 +232,14 @@ void UpdatePlayerCamera(int width, int height)
 
 // update terrain method
 void UpdateTerrain() {
+    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        for (const Vec2& point : terrainEditor.points) {
+            DrawCircleV(point, 20, GREEN);
+        }
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            terrainEditor.points.push_back(GetMousePosition());
+        }
+    }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         terrainEditor.AddPoint(GetScreenToWorld2D(GetMousePosition(), camera));
     }

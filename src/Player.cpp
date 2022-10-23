@@ -43,7 +43,7 @@ void Player::Update(const PlayerUpdateInfo& params) {
     SimulateBoosters(params);
 
     if (IsCapable() && IsKeyDown(KEY_SPACE)) {
-        Vec2 forwardForce = Vec2 (2000, 0).Rotate(angle);
+        Vec2 forwardForce = Vec2 (1500, 0).Rotate(angle);
         Vec2 leftMiddle = PlayerToWorldPos(dimens * Vec2(-0.5f, 0.0f));
 //        DrawCircleV(leftMiddle, 10, GREEN);
 //        optional<float> backBoosterDist = BoosterRayCastDist(backBoosterPos, boosterDir + boosterAngleOffset, maxLen, terrainSegments);

@@ -11,16 +11,30 @@ TerrainEditor::TerrainEditor(Vec2 p1, Vec2 p2) {
 }
 
 void TerrainEditor::AddPoint(Vec2 point) {
-    int closestIndex = FindNearestIndex(point);
+    int closestIndex = FindNearestLineIndex(point);
     points.insert(points.begin() + closestIndex + 1, point);
 }
 
-int TerrainEditor::FindNearestIndex(Vec2 point) {
+
+
+int TerrainEditor::FindNearestPointIndex(Vec2 point) {
+    int closestIndex = 0;
+    float closestDistance = FLT_MAX;
+    for (int i = 0; i < points.size(); i++) {
+        float distance = (point - points[i]).Length();
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestIndex = i;
+        }
+    }
+    return closestIndex;
+}
+
+int TerrainEditor::FindNearestLineIndex(Vec2 point) {
     int closestIndex = 0;
     float closestDistance = FLT_MAX;
     for (int i = 0; i < points.size() - 1; i++) {
         float distance = PointLineDistance(point, points[i], points[i + 1]);
-
         if (distance < closestDistance) {
             closestDistance = distance;
             closestIndex = i;
@@ -40,7 +54,7 @@ float TerrainEditor::PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2) {
 void TerrainEditor::DebugRender() {
     Vec2 mousePos = Util::MousePosWorld();
 
-    int nearestIndex = FindNearestIndex(mousePos);
+    int nearestIndex = FindNearestLineIndex(mousePos);
     DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 10.0f, RED);
 }
 
