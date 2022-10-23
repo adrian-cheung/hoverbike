@@ -35,6 +35,8 @@ vector<Particle> particles;
 vector<RagDoll> ragDolls;
 raylib::RenderTexture target;
 std::unordered_set<int> gapIndices;
+Vec2 start = {0, 0};
+Vec2 end = {screenWidth, screenHeight};
 
 RectF destRect;
 RectF srcRect;
@@ -113,7 +115,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
         UpdatePlayerCamera(screenWidth, screenHeight);
-        terrainSerializer.Update(terrainSegments, gapIndices, terrainEditor);
+        terrainSerializer.Update(terrainSegments, terrainEditor.points, gapIndices, start, end, terrainEditor);
         terrainEditor.Update(terrainSegments, gapIndices);
         UpdateDrawFrame();
     }

@@ -11,17 +11,17 @@
 class TerrainSerializer {
 
 public:
-    const std::string FILENAME = "terrain.txt";
-    vector<Vec2> points;
-    std::unordered_set<int> gapIndices;
-    Vec2 start;
-    Vec2 end;
+    const std::string FILENAME = "terrainpoly.txt";
+//    vector<Vec2> points;
+//    std::unordered_set<int> gapIndices;
+//    Vec2 start;
+//    Vec2 end;
 
-    void Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices, TerrainEditor& terrainEditor);
+    void Update(vector<TerrainSegment>& terrainSegments, vector<Vec2>& points, std::unordered_set<int>& gapIndices, Vec2& start, Vec2& end, TerrainEditor& terrainEditor);
 
-    void SaveTerrain();
+    void SaveTerrain(vector<Vec2>& points, std::unordered_set<int>& gapIndices, Vec2& start, Vec2& end);
 
-    void LoadTerrain();
+    void LoadTerrain(vector<Vec2>& points, std::unordered_set<int>& gapIndices, Vec2& start, Vec2& end);
 };
 
 
