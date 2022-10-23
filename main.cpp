@@ -10,17 +10,28 @@
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-int screenWidth = 1920 / 2;
-int screenHeight = 1080 / 2;
+const int screenWidth = 1920 / 2;
+const int screenHeight = 1080 / 2;
+const float screenWidthF = (float) screenWidth;
+const float screenHeightF = (float) screenHeight;
+
+const int virtualRatio = 4;
+const int virtualScreenWidth = screenWidth / virtualRatio;
+const int virtualScreenHeight = screenHeight / virtualRatio;
+
 int frames = 0;
-float screenWidthF = (float) screenWidth;
-float screenHeightF = (float) screenHeight;
+
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
+Camera2D theOtherCamera = { 0 };
 vector<TerrainSegment> terrainSegments;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 vector<Particle> particles;
+raylib::RenderTexture target;
+
+RectF destRect;
+RectF srcRect;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -80,6 +91,16 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    theOtherCamera.zoom = 1.0f;
+    theOtherCamera.rotation = 0.0f;
+
+    target = raylib::RenderTexture(virtualScreenWidth, virtualScreenHeight);
+
+    // The target's height is flipped (in the source Rectangle), due to OpenGL reasons
+    srcRect = RectF { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
+    destRect = RectF { 0, 0, screenWidth, screenHeight };
+
+
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
@@ -108,10 +129,14 @@ void Update() {
 //----------------------------------------------------------------------------------
 void UpdateDrawFrame()
 {
-    // Draw
-    //----------------------------------------------------------------------------------
-    BeginDrawing();
+    BeginTextureMode(target);
+    ClearBackground({0, 0, 0, 0});
+    BeginMode2D(theOtherCamera);
+    player->Render();
+    EndMode2D();
+    EndTextureMode();
 
+    BeginDrawing();
     ClearBackground(RAYWHITE);
 
     PerlinNoise::Render(Vector2Subtract(camera.target, camera.offset), screenWidthF, screenHeightF, 15);
@@ -126,27 +151,17 @@ void UpdateDrawFrame()
         terrainSegment.Render();
     }
 
-    player->Render();
+//    player->Render();
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
         if (particles[i].Update(GetFrameTime(), frames)) {
             particles.erase(particles.begin() + i);
         }
-
-
     }
 
 
     DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
-
-    if (auto underPlayerPoint = Collision::LineTerrainNearest(player->pos, player->pos + Vec2(0, 100), terrainSegments)) {
-        DrawCircleV(*underPlayerPoint, 3.0f, BLUE);
-    }
-
-    for (const auto& p : player->Polygon()) {
-        DrawCircleV(p, 3.0f, PURPLE);
-    }
 
     if (Collision::PolygonTerrain(player->Polygon(), terrainSegments)) {
         DrawText("Colliding >:O", 10, 450, 30, ORANGE);
@@ -154,6 +169,14 @@ void UpdateDrawFrame()
 
     raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
     raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
+
+    EndMode2D();
+    EndTextureMode();
+
+    // Draw
+    //----------------------------------------------------------------------------------
+//    EndMode2D();
+    target.GetTexture().Draw(srcRect, destRect, {0, 0}, 0.0f, WHITE);
 
     EndDrawing();
     //----------------------------------------------------------------------------------
@@ -171,4 +194,10 @@ void UpdatePlayerCamera(int width, int height)
     {
         camera.target = player->pos - ((diff / diffLength) * minEffectLength);
     }
+
+
+
+    theOtherCamera.offset = Vec2(virtualScreenWidth, virtualScreenHeight) / 2.0f;
+    theOtherCamera.target = Vec2 {camera.target};
+    theOtherCamera.zoom = 1.0f / virtualRatio;
 }

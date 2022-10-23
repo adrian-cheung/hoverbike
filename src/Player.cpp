@@ -170,7 +170,7 @@ void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegme
         diffX += STEP_LEN;
         if (CollidesWithDiff({diffX, 0})) {
             diffX -= STEP_LEN;
-            vel.x = 0;
+            vel.x = -vel.x * 0.9f;
             break;
         }
     }
@@ -180,7 +180,7 @@ void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegme
         diffY += STEP_LEN;
         if (CollidesWithDiff({diffX, diffY})) {
             diffY -= STEP_LEN;
-            vel.y = 0;
+            vel.y = -vel.y * 0.9f;
             break;
         }
     }
@@ -203,7 +203,7 @@ void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegme
         currAngleDiff += ANGLE_STEP * (float) angleDiffSign;
         if (CollidesAtRotation(currAngleDiff)) {
             currAngleDiff -= ANGLE_STEP * (float) angleDiffSign;
-//            angularVel = 0;
+            angularVel = -angularVel * 0.9f;
             break;
         }
     }
