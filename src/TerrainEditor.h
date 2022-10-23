@@ -13,11 +13,11 @@ public:
     vector<Vec2> points;
 
     TerrainEditor(Vec2 p1, Vec2 p2);
-    void Render();
     void AddPoint(Vec2 point);
+    void DebugRender(const Camera2D& camera);
 private:
-    int getClosestIndex(Vec2 point);
-    float getDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2);
+    int FindNearestIndex(Vec2 point);
+    static float PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2);
 };
 
 

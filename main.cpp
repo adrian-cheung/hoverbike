@@ -150,6 +150,8 @@ void UpdateDrawFrame()
         terrainSegment.Render();
     }
 
+    terrainEditor.DebugRender(camera);
+
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
