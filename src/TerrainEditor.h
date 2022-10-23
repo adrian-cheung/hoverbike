@@ -14,9 +14,11 @@ public:
 
     TerrainEditor(Vec2 p1, Vec2 p2);
     void AddPoint(Vec2 point);
+    void MovePoint();
     void DebugRender();
 private:
-    int FindNearestIndex(Vec2 point);
+    int FindNearestPointIndex(Vec2 point);
+    int FindNearestLineIndex(Vec2 point);
     static float PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2);
 };
 
