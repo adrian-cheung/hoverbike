@@ -173,10 +173,10 @@ void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
 optional<float> Player::BoosterRayCastDist(Vec2 origin, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const {
     Vec2 rayEnd = origin + Vec2(maxLen, 0).Rotate(angle + dir);
 
-    DrawLineEx(origin, rayEnd, 1.0f, BLUE);
+    if (DEV_MODE) {DrawLineEx(origin, rayEnd, 1.0f, BLUE);}
 
     if (auto collision = Collision::LineTerrainNearest(origin, rayEnd, terrainSegments)) {
-        DrawCircleV(*collision, 10.0f, ORANGE);
+        if (DEV_MODE) {DrawCircleV(*collision, 10.0f, ORANGE);}
         return collision->Distance(origin);
     }
 

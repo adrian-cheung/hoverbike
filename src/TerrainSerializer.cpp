@@ -37,13 +37,12 @@ void TerrainSerializer::LoadTerrain() {
     }
 }
 
-void TerrainSerializer::Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor) {
+void TerrainSerializer::Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices, TerrainEditor& terrainEditor) {
     if (IsKeyPressed(KEY_F1)) {
         SaveTerrain();
     }
     if (IsKeyPressed(KEY_F2)) {
         LoadTerrain();
-//        terrainEditor.RebuildTerrain(terrainSegments);
+        terrainEditor.RebuildTerrain(terrainSegments, gapIndices);
     }
-
 }

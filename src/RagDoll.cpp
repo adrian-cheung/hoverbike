@@ -33,6 +33,7 @@ void RagDoll::Update(float deltaTime, const vector<TerrainSegment>& terrainSegme
     angularAccel = 0.0f;
 
     accel.y += Player::GRAVITY;
+    accel.x -= vel.x * 0.7f;
     vel += accel * deltaTime;
     MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
 

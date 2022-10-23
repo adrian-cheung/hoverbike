@@ -22,8 +22,8 @@ public:
 
     TerrainEditor(Vec2 p1, Vec2 p2);
 
-    void Update(vector<TerrainSegment>& terrainSegments);
-    void RebuildTerrain(vector<TerrainSegment>& terrainSegments);
+    void Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices);
+    void RebuildTerrain(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices);
     void AddPoint(Vec2 point);
     void MovePoint();
     void DebugRender();

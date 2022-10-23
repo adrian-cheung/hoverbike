@@ -17,7 +17,7 @@ public:
     Vec2 start;
     Vec2 end;
 
-    void Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor);
+    void Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices, TerrainEditor& terrainEditor);
 
     void SaveTerrain();
 
