@@ -146,9 +146,9 @@ void UpdateDrawFrame()
     Update();
 
     // render terrain points
-    for (const TerrainSegment& terrainSegment : terrainSegments) {
-        terrainSegment.Render();
-    }
+//    for (const TerrainSegment& terrainSegment : terrainSegments) {
+//        terrainSegment.Render();
+//    }
 
     terrainEditor.DebugRender();
 
@@ -194,8 +194,9 @@ void RenderTerrain() {
 
     const Color TERRAIN_COLOR = BLACK;
     const auto RenderPoly = [&](){
-        for (int i = 0; i < thisPoly.size() - 2; i++) {
-            DrawTriangle(thisPoly[0], thisPoly[i + 1], thisPoly[i + 2], TERRAIN_COLOR);
+        auto thePoly = thisPoly | reverse | to_vector{};
+        for (int i = 0; i < thePoly.size() - 2; i++) {
+            DrawTriangle(thePoly[0], thePoly[i + 1], thePoly[i + 2], TERRAIN_COLOR);
         }
     };
 

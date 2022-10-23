@@ -52,6 +52,7 @@ float TerrainEditor::PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2) {
 }
 
 void TerrainEditor::DebugRender() {
+    if (!DEV_MODE) {return;}
     Vec2 mousePos = Util::MousePosWorld();
 
     int nearestIndex = FindNearestLineIndex(mousePos);
