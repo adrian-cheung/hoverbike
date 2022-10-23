@@ -39,7 +39,6 @@ void TerrainSerializer::LoadTerrain(vector<Vec2>& points, std::unordered_set<int
         gapIndices.insert(gapIndex);
         std::cout << std::to_string(gapIndex) << std::endl;
     }
-    std::cout << "helloge4" << std::endl;
 }
 
 void TerrainSerializer::Update(vector<TerrainSegment>& terrainSegments, vector<Vec2>& points, std::unordered_set<int>& gapIndices, Vec2& start, Vec2& end, TerrainEditor& terrainEditor) {
