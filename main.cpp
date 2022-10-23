@@ -184,6 +184,21 @@ void UpdateDrawFrame()
 
 void UpdatePlayerCamera(int width, int height)
 {
+    // zoom based on mouse wheel
+    float wheel = GetMouseWheelMove();
+    if (wheel != 0)
+    {
+        camera.target = GetScreenToWorld2D(GetMousePosition(), camera);
+
+        camera.zoom += wheel * 0.1f;
+        if (camera.zoom < 0.1f) {
+            camera.zoom = 0.1f;
+        } else if (camera.zoom > 2.0f) {
+            camera.zoom = 2.0f;
+        }
+    }
+
+    // smooth camera movement
     float minEffectLength = 10;
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
@@ -195,9 +210,8 @@ void UpdatePlayerCamera(int width, int height)
         camera.target = player->pos - ((diff / diffLength) * minEffectLength);
     }
 
-
-
+    // pixelated camera
     theOtherCamera.offset = Vec2(virtualScreenWidth, virtualScreenHeight) / 2.0f;
     theOtherCamera.target = Vec2 {camera.target};
-    theOtherCamera.zoom = 1.0f / virtualRatio;
+    theOtherCamera.zoom = camera.zoom / virtualRatio;
 }
