@@ -5,6 +5,7 @@
 #include "src/PerlinNoise.h"
 #include "src/CityScape.h"
 #include "src/Particle.h"
+#include "src/TerrainEditor.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -40,18 +41,36 @@ int main()
     raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
 
-    vector<Vec2> terrainPoints = {
-            {screenWidthF * -1, 0.0f},
-            {0, screenHeightF * 0.7f},
-            {screenWidthF / 2.0f, screenHeightF * 0.75f},
-            {screenWidthF, screenHeightF * 0.7f},
-            {screenWidthF * 3, screenHeightF * 0.73f},
-            {screenWidthF * 20, screenHeightF * 0.7f},
-    };
-    terrainSegments.reserve(terrainPoints.size() - 1);
-    for (int i = 0; i < terrainPoints.size() - 1; i++) {
-        terrainSegments.push_back({ terrainPoints[i], terrainPoints[i + 1] });
+    // Add points with terrainEditor
+    TerrainEditor terrainEditor = TerrainEditor({screenWidthF * -1.0f, screenHeightF * 0.75f}, {screenWidthF * 100.0f, screenHeightF * 0.75f});
+
+    terrainEditor.AddPoint(Vec2 {screenWidthF * 1, screenHeightF * 0.9f});
+    terrainEditor.AddPoint(Vec2 {screenWidthF * 4, screenHeightF * 0.5f});
+    terrainEditor.AddPoint(Vec2 {screenWidthF * 2, screenHeightF * 0.7f});
+    terrainEditor.AddPoint(Vec2 {screenWidthF * 3, screenHeightF * 0.4f});
+    // print points
+    for (auto& point : terrainEditor.points) {
+        std::cout << point.x << ", " << point.y << std::endl;
     }
+
+    terrainSegments.reserve(terrainEditor.points.size() - 1);
+    for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
+        terrainSegments.push_back({ terrainEditor.points[i], terrainEditor.points[i + 1] });
+    }
+
+
+//    vector<Vec2> terrainPoints = {
+//            {screenWidthF * -1, 0.0f},
+//            {0, screenHeightF * 0.7f},
+//            {screenWidthF / 2.0f, screenHeightF * 0.75f},
+//            {screenWidthF, screenHeightF * 0.7f},
+//            {screenWidthF * 2, screenHeightF * 0.2f},
+//            {screenWidthF * 20, screenHeightF * 0.7f},
+//    };
+//    terrainSegments.reserve(terrainPoints.size() - 1);
+//    for (int i = 0; i < terrainPoints.size() - 1; i++) {
+//        terrainSegments.push_back({ terrainPoints[i], terrainPoints[i + 1] });
+//    }
 
     SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
