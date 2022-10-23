@@ -7,27 +7,29 @@
 
 #include "Includes.h"
 #include "TerrainSegment.h"
+#include "Random.h"
+#include <random>
+#include <chrono>
 
 struct Particle {
 
-    Vec2 position;
+    Vec2 pos;
     Vec2 vel;
-    Color color;
-    float size;
-    float angle;
-    bool active;
-    //vector<Particle> particles;
+    RayColor color;
+    float maxSize;
+    float timeLeft;
+    float maxTimeLeft;
+    float angle = 0.0f;
 
-    Particle(Vec2 pos, Vec2 vel) : position(pos), vel(vel), size(10)
+    Particle(Vec2 pos, Vec2 vel, Color color) : pos(pos), vel(vel), color(color)
     {
-        std::random_device rd;
-        std::mt19937 e2(rd());
-        std::uniform_int_distribution<> dist(0, 360);
-
-        angle = dist(e2);
+        maxTimeLeft = Random::Rand(0.5f, 1.0f);
+        timeLeft = maxTimeLeft;
+        maxSize = Random::Rand(10, 20);
+        angle = Random::Rand(360.0f);
     };
     void Render();
-    bool Update(float deltaTime, int frames);
+    bool Update(float deltaTime);
 
 
 };

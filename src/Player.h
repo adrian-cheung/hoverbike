@@ -4,6 +4,13 @@
 #include <Includes.h>
 #include "resources/Paths.h"
 #include "TerrainSegment.h"
+#include "Particle.h"
+
+struct PlayerUpdateInfo {
+    float deltaTime;
+    vector<TerrainSegment>& terrainSegments;
+    vector<Particle>& particles;
+};
 
 class Player {
 public:
@@ -27,7 +34,7 @@ public:
         dimens = Vec2((float) texture.width, (float) texture.height) * scale;
     }
 
-    void Update(float deltaTime, const vector<TerrainSegment>& terrainSegments);
+    void Update(const PlayerUpdateInfo& params);
 
     void ApplyForce(Vec2 force, Vec2 point, float deltaTime);
 
@@ -43,8 +50,8 @@ private:
     RayTexture texture = {Paths::Image("bike")};
     float scale = 4;
 
-    void SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime);
-    [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
+    void SimulateBoosters(const PlayerUpdateInfo& params);
+    [[nodiscard]] optional<float> BoosterRayCastDist(Vec2 origin, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const;
 };
 
 

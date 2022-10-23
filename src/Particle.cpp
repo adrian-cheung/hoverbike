@@ -4,20 +4,16 @@
 
 #include "Particle.h"
 
-#define MAX_PARTICLES 200
-
 
 void Particle::Render() {
-    DrawRectanglePro({position.x, position.y, size, size},
-                     {size / 2, size / 2}, angle, RayColor(0, 0, 255, 128));
+    float size = maxSize * (timeLeft / maxTimeLeft);
+    DrawRectanglePro({pos.x, pos.y, size, size},
+                     {size / 2, size / 2}, angle, color);
 }
 
-bool Particle::Update(float deltaTime, int frames) {
-    position = position + vel * deltaTime;
-    if (frames % 15 == 0) {
-        size -= 1;
-    }
+bool Particle::Update(float deltaTime) {
+    pos += vel * deltaTime;
+    timeLeft -= deltaTime;
 
-    return size <= 0;
-
+    return timeLeft <= 0.0f;
 }
