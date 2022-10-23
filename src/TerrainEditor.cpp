@@ -58,6 +58,131 @@ void TerrainEditor::DebugRender() {
     DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 10.0f, RED);
     DrawLineEx(points[nearestIndex], mousePos, 1.0f, ORANGE);
     DrawLineEx(mousePos, points[nearestIndex + 1], 1.0f, ORANGE);
+
+    if (selecting) {
+        GimmeRect(selectStart, Util::MousePosWorld()).Draw({255, 255, 255, 60});
+    }
+
+    for (int i = 0; i < points.size(); i++) {
+        DrawCircleV(points[i], 20, selectedPoints.contains(i) ? GREEN : WHITE);
+    }
+}
+
+vector<int> TerrainEditor::PointsBetween(Vec2 selectStart, Vec2 selectEnd) {
+    vector<int> indicies = {};
+
+    RectF rect = GimmeRect(selectStart, selectEnd);
+    for (int i = 0; i < points.size(); i++) {
+        if (CheckCollisionPointRec(points[i], rect)) {
+            indicies.push_back(i);
+        }
+    }
+
+    return indicies;
+}
+
+void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
+    bool leftPressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+    bool shiftHeld = IsKeyDown(KEY_LEFT_SHIFT);
+    Vec2 mousePos = Util::MousePosWorld();
+
+    if ((IsKeyPressed(KEY_DELETE) || IsKeyPressed(KEY_BACKSPACE)) && !selectedPoints.empty()) {
+        for (int i = points.size() - 1; i >= 0; i--) {
+            if (selectedPoints.contains(i)) {
+                points.erase(points.begin() + i);
+            }
+        }
+        selectedPoints.clear();
+        grabbing = false;
+        RebuildTerrain(terrainSegments);
+        return;
+    }
+
+    if (IsKeyPressed(KEY_G)) {
+        grabbing = true;
+        preTransformPoints = points;
+        grabStart = mousePos;
+    }
+
+    // grab :)
+    if (grabbing) {
+        Vec2 diff = mousePos - grabStart;
+        for (int i = 0; i < points.size(); i++) {
+            if (selectedPoints.contains(i)) {
+                points[i] = preTransformPoints[i] + diff;
+            }
+        }
+        RebuildTerrain(terrainSegments);
+
+        if (leftPressed || IsKeyPressed(KEY_SPACE)) {
+            grabbing = false;
+        }
+        return;
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+        selectStart = mousePos;
+        selecting = true;
+    }
+
+    if (selecting && IsMouseButtonReleased(MOUSE_BUTTON_RIGHT)) {
+        if (!IsKeyDown(KEY_LEFT_SHIFT)) {
+            selectedPoints.clear();
+        }
+        for (int index : PointsBetween(selectStart, mousePos)) {
+            selectedPoints.insert(index);
+        }
+        selecting = false;
+        return;
+    }
+
+
+//    if (leftPressed && IsKeyDown(KEY_LEFT_SHIFT)) {
+//
+//    }
+
+//    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+//        for (const Vec2& point : points) {
+//            DrawCircleV(point, 20, GREEN);
+//        }
+//        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+//            points.push_back(GetMousePosition());
+//        }
+//    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        int index = FindNearestLineIndex(mousePos);
+        AddPoint(mousePos);
+
+        if (!shiftHeld) {
+            selectedPoints.clear();
+        }
+        selectedPoints.insert(index + 1);
+        RebuildTerrain(terrainSegments);
+    }
+//    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+//        points.pop_back();
+//    }
+//    if (IsKeyPressed(KEY_BACKSPACE)) {
+//        points.clear();
+//        terrainSegments.clear();
+//    }
+
+}
+
+void TerrainEditor::RebuildTerrain(vector<TerrainSegment> &terrainSegments) {
+    terrainSegments.clear();
+    terrainSegments.reserve(std::max(0, (int) points.size() - 1));
+    for (int i = 0; i < points.size() - 1; i++) {
+        terrainSegments.push_back({ points[i], points[i + 1] });
+    }
+}
+
+RectF TerrainEditor::GimmeRect(Vec2 selectStart, Vec2 selectEnd) {
+    float minX = std::min(selectStart.x, selectEnd.x);
+    float minY = std::min(selectStart.y, selectEnd.y);
+    float maxX = std::max(selectStart.x, selectEnd.x);
+    float maxY = std::max(selectStart.y, selectEnd.y);
+    return { minX, minY, (maxX - minX), (maxY - minY) };
 }
 
 

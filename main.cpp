@@ -119,7 +119,7 @@ int main()
 
 // update method with WASD key movement
 void Update() {
-    if (IsKeyPressed(KEY_G)) {
+    if (IsKeyPressed(KEY_P)) {
         player->godModeEnabled ^= true;
         if (player->godModeEnabled) { player->isDead = false; }
         player->vel = Vec2 {};
@@ -147,9 +147,6 @@ void UpdateDrawFrame()
     Update();
 
     // render terrain points
-    for (const Vec2& point : terrainEditor.points) {
-        DrawCircleV(point, 20, WHITE);
-    }
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
     }
@@ -233,28 +230,5 @@ void UpdatePlayerCamera(int width, int height)
 
 // update terrain method
 void UpdateTerrain() {
-    if (IsKeyDown(KEY_LEFT_CONTROL)) {
-        for (const Vec2& point : terrainEditor.points) {
-            DrawCircleV(point, 20, GREEN);
-        }
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            terrainEditor.points.push_back(GetMousePosition());
-        }
-    }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        terrainEditor.AddPoint(GetScreenToWorld2D(GetMousePosition(), camera));
-        terrainSegments.clear();
-        terrainSegments.reserve(terrainEditor.points.size() - 1);
-        for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
-            terrainSegments.push_back({ terrainEditor.points[i], terrainEditor.points[i + 1] });
-        }
-
-    }
-    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-        terrainEditor.points.pop_back();
-    }
-    if (IsKeyPressed(KEY_BACKSPACE)) {
-        terrainEditor.points.clear();
-        terrainSegments.clear();
-    }
+    terrainEditor.Update(terrainSegments);
 }
