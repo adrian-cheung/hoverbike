@@ -110,7 +110,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
         UpdatePlayerCamera(screenWidth, screenHeight);
-        TerrainSerializer::Update(terrainSegments, terrainEditor);
+//        TerrainSerializer::Update(terrainSegments, terrainEditor);
         terrainEditor.Update(terrainSegments);
         UpdateDrawFrame();
     }

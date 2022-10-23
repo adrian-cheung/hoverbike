@@ -5,35 +5,45 @@
 #include <sstream>
 #include "TerrainSerializer.h"
 
-void TerrainSerializer::SaveTerrain(const vector<Vec2>& terrainPoints, const std::string& filename) {
+void TerrainSerializer::SaveTerrain() {
     std::string fileContents;
-    for (auto point: terrainPoints) {
-        fileContents += std::to_string(point.x) + "," + std::to_string(point.y) + "\n";
+    fileContents += std::to_string(start.x) + " " + std::to_string(start.y) + " " + std::to_string(end.x) + " " + std::to_string(end.y);
+    for (auto point : points) {
+        fileContents += std::to_string(point.x) + " " + std::to_string(point.y) + "\n";
     }
-    raylib::SaveFileText(filename, fileContents);
+    fileContents += "\n";
+    for (auto gapIndex : gapIndices) {
+        fileContents += std::to_string(gapIndex) + " ";
+    }
+    raylib::SaveFileText(FILENAME, fileContents);
 }
 
-vector<Vec2> TerrainSerializer::LoadTerrain(const std::string& filename) {
+void TerrainSerializer::LoadTerrain() {
     vector<Vec2> terrainPoints;
-    std::stringstream ss(raylib::LoadFileText(filename));
+    std::stringstream ss(raylib::LoadFileText(FILENAME));
+    ss >> start.x >> start.y >> end.x >> end.y;
     std::string line;
-    while (std::getline(ss, line)) {
+    while (!line.empty() && std::getline(ss, line)) {
         std::stringstream lineStream(line);
-        std::string x, y;
-        std::getline(lineStream, x, ',');
-        std::getline(lineStream, y, ',');
-        terrainPoints.push_back(Vec2(std::stof(x), std::stof(y)));
+        float x, y;
+        lineStream >> x >> y;
+        terrainPoints.push_back(Vec2(x, y));
     }
-    return terrainPoints;
+    std::getline(ss, line);
+    std::stringstream lineStream(line);
+    int gapIndex;
+    while (lineStream >> gapIndex) {
+        gapIndices.insert(gapIndex);
+    }
 }
 
 void TerrainSerializer::Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor) {
     if (IsKeyPressed(KEY_F1)) {
-        SaveTerrain(terrainEditor.points, "terrain.txt");
+        SaveTerrain();
     }
     if (IsKeyPressed(KEY_F2)) {
-        terrainEditor.points = LoadTerrain("terrain.txt");
-        terrainEditor.RebuildTerrain(terrainSegments);
+        LoadTerrain();
+//        terrainEditor.RebuildTerrain(terrainSegments);
     }
 
 }

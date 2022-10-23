@@ -9,12 +9,19 @@
 #include "TerrainEditor.h"
 
 class TerrainSerializer {
+
 public:
-    static void Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor);
+    const std::string FILENAME = "terrain.txt";
+    vector<Vec2> points;
+    std::unordered_set<int> gapIndices;
+    Vec2 start;
+    Vec2 end;
 
-    static void SaveTerrain(const vector<Vec2> &terrainPoints, const std::string &filename);
+    void Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor);
 
-    static vector<Vec2> LoadTerrain(const std::string &filename);
+    void SaveTerrain();
+
+    void LoadTerrain();
 };
 
 
