@@ -18,7 +18,7 @@ void Player::Update(const PlayerUpdateInfo& params) {
         std::cout << theVec.x << ' ' << theVec.y << '\n';
     }
 
-    auto& [deltaTime, terrainSegments, particles, ragDolls] = params;
+    auto& [deltaTime, terrainSegments, particles, ragDolls, bonkSound] = params;
 
     accel = Vec2 {};
     angularAccel = 0.0f;
@@ -90,12 +90,12 @@ void Player::Update(const PlayerUpdateInfo& params) {
 
 
     if (!isDead && Collision::PolygonTerrain(PlayerPolygon(), terrainSegments)) {
-        Die(ragDolls);
+        Die(ragDolls, bonkSound);
     }
 
     if (IsKeyPressed(KEY_R)) {
         if (!isDead) {
-            Die(ragDolls);
+            Die(ragDolls, bonkSound);
         } else {
             isDead = false;
         }
@@ -125,7 +125,7 @@ vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
 }
 
 void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
-    auto& [deltaTime, terrainSegments, particles, ragDolls] = params;
+    auto& [deltaTime, terrainSegments, particles, ragDolls,bonkSound] = params;
 
     backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.36f, 0.5f));
     frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.36f, 0.5f));
@@ -202,10 +202,11 @@ vector<Vec2> Player::PlayerPolygon(Vec2 offset, float angleOffset) {
     return unTranslatedPoints | MAP({ return pos + offset + (it * dimens).Rotate(angle + angleOffset); }) | to_vector{};
 }
 
-void Player::Die(vector<RagDoll>& ragDolls) {
+void Player::Die(vector<RagDoll>& ragDolls, raylib::Sound& bonkSound) {
     if (godModeEnabled) { return; }
 
     isDead = true;
+    bonkSound.Play();
     ragDolls.emplace_back(
             pos + Vec2(0, -10).Rotate(angle), vel, angle, angularVel + Random::RandPN(20), scale
     );

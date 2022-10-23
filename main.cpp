@@ -45,6 +45,9 @@ const float MAX_TIME_UNTIL_RESTART = 2.0f;
 float timeUntilRestart;
 float timeElapsed;
 
+raylib::Music music;
+raylib::Sound bonkSound;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -68,9 +71,16 @@ int main()
     // Add points with terrainEditor
 
     // print points
-    for (auto& point : terrainEditor.points) {
-        std::cout << point.x << ", " << point.y << std::endl;
-    }
+//    for (auto& point : terrainEditor.points) {
+//        std::cout << point.x << ", " << point.y << std::endl;
+//    }
+
+
+    InitAudioDevice();
+    music = raylib::Music(Paths::Asset("music/music.wav"));
+    music.Play();
+    bonkSound = raylib::Sound(Paths::Asset("audio/bonk.wav"));
+
 
     terrainSegments.reserve(terrainEditor.points.size() - 1);
     for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
@@ -114,6 +124,7 @@ int main()
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
+        music.Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         terrainSerializer.Update(terrainSegments, terrainEditor.points, gapIndices, start, end, terrainEditor);
         terrainEditor.Update(terrainSegments, gapIndices);
@@ -135,6 +146,7 @@ void ResetPlayer() {
 // update method with WASD key movement
 void Update() {
     float deltaTime = GetFrameTime();
+    timeElapsed += deltaTime;
 
     if (player->isDead) {
         timeUntilRestart -= deltaTime;
@@ -153,7 +165,7 @@ void Update() {
         player->angularVel = 0.0f;
     }
 
-    player->Update({deltaTime, terrainSegments, particles, ragDolls});
+    player->Update({deltaTime, terrainSegments, particles, ragDolls, bonkSound});
 }
 
 //----------------------------------------------------------------------------------
@@ -210,6 +222,9 @@ void UpdateDrawFrame()
     // Draw
     //----------------------------------------------------------------------------------
     target.GetTexture().Draw(srcRect, destRect, {0, 0}, 0.0f, WHITE);
+
+    std::string str = Util::Fmt("%.2f s", timeElapsed);
+    raylib::DrawText(str,(int)( screenWidth - MeasureText(str.c_str(), 30) - 10), screenHeight - 50, 30, WHITE);
 
     EndDrawing();
     //----------------------------------------------------------------------------------

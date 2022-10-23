@@ -13,6 +13,7 @@ struct PlayerUpdateInfo {
     vector<TerrainSegment>& terrainSegments;
     vector<Particle>& particles;
     vector<RagDoll>& ragDolls;
+    raylib::Sound& bonkSound;
 };
 
 class Player : public RigidBody {
@@ -54,7 +55,7 @@ public:
 
     vector<Vec2> PlayerPolygon(Vec2 offset = {0, 0}, float angleOffset = 0);
 
-    void Die(vector<RagDoll>& ragDolls);
+    void Die(vector<RagDoll>& ragDolls, raylib::Sound& bonkSound);
 
     [[nodiscard]] bool IsCapable() { return !isDead; }
 

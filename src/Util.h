@@ -5,6 +5,11 @@
 #ifndef HOVERGAME_UTIL_H
 #define HOVERGAME_UTIL_H
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cstdio>
+#include <cstring>
 
 #include "Includes.h"
 
@@ -20,6 +25,17 @@ public:
 
     static Vec2 MousePosWorld() {
         return GetScreenToWorld2D(GetMousePosition(), *susCameraPtr);
+    }
+
+    static std::string Fmt(const char* fmt, ...)
+    {
+        char buf[1024];
+        sprintf(buf, "");
+
+        va_list ap;
+        va_start(ap, fmt);
+        vsprintf(buf + strlen(buf), fmt, ap);
+        return buf;
     }
 
 private:
