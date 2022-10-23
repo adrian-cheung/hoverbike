@@ -7,11 +7,12 @@
 
 
 #include "TerrainEditor.h"
+#include "resources/Paths.h"
 
 class TerrainSerializer {
 
 public:
-    const std::string FILENAME = "terrainpoly.txt";
+    const std::string FILENAME = Paths::Map("terrainpoly");
 //    vector<Vec2> points;
 //    std::unordered_set<int> gapIndices;
 //    Vec2 start;
