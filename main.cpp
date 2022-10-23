@@ -8,6 +8,7 @@
 #include "src/TerrainEditor.h"
 #include "src/Util.h"
 #include "src/RagDoll.h"
+#include "src/TerrainSerializer.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -41,7 +42,6 @@ RectF srcRect;
 //----------------------------------------------------------------------------------
 void UpdateDrawFrame();     // Update and Draw one frame
 void UpdatePlayerCamera(int width, int height);
-void UpdateTerrain();
 void Update();
 
 
@@ -110,7 +110,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
         UpdatePlayerCamera(screenWidth, screenHeight);
-        UpdateTerrain();
+        terrainEditor.Update(terrainSegments);
         UpdateDrawFrame();
     }
 
@@ -226,9 +226,4 @@ void UpdatePlayerCamera(int width, int height)
     theOtherCamera.offset = Vec2(virtualScreenWidth, virtualScreenHeight) / 2.0f;
     theOtherCamera.target = Vec2 {camera.target};
     theOtherCamera.zoom = camera.zoom / virtualRatio;
-}
-
-// update terrain method
-void UpdateTerrain() {
-    terrainEditor.Update(terrainSegments);
 }
