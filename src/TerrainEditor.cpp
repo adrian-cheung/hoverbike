@@ -18,13 +18,16 @@ void TerrainEditor::AddPoint(Vec2 point) {
 int TerrainEditor::getClosestIndex(Vec2 point) {
     int closestIndex = 0;
     float closestDistance = FLT_MAX;
+    std::cout << "==============================" << std::endl;
+    std::cout << "POINT: " << point.x << ", " << point.y << std::endl;
     for (int i = 0; i < points.size() - 1; i++) {
         float distance = getDistance(point, points[i], points[i+1]);
+
         std::cout << "distance: " << distance << std::endl;
         if (distance < closestDistance) {
             closestDistance = distance;
             closestIndex = i;
-            std::cout << "closest index: " << closestIndex << std::endl;
+            std::cout << "closest index: " << closestIndex << " - " << points[closestIndex].x << ", " << points[closestIndex].y << std::endl;
         }
     }
     return closestIndex;

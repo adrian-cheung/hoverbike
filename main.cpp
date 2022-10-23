@@ -24,7 +24,9 @@ int frames = 0;
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
 Camera2D theOtherCamera = { 0 };
+vector<Vec2> terrainPoints;
 vector<TerrainSegment> terrainSegments;
+TerrainEditor terrainEditor = TerrainEditor({screenWidthF * -1.0f, screenHeightF * 0.75f}, {screenWidthF * 10.0f, screenHeightF * 0.75f});
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 vector<Particle> particles;
@@ -38,7 +40,9 @@ RectF srcRect;
 //----------------------------------------------------------------------------------
 void UpdateDrawFrame();     // Update and Draw one frame
 void UpdatePlayerCamera(int width, int height);
+void UpdateTerrain();
 void Update();
+
 
 
 //----------------------------------------------------------------------------------
@@ -53,12 +57,11 @@ int main()
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
 
     // Add points with terrainEditor
-    TerrainEditor terrainEditor = TerrainEditor({screenWidthF * -1.0f, screenHeightF * 0.75f}, {screenWidthF * 100.0f, screenHeightF * 0.75f});
 
-    terrainEditor.AddPoint(Vec2 {screenWidthF * 1, screenHeightF * 0.9f});
-    terrainEditor.AddPoint(Vec2 {screenWidthF * 4, screenHeightF * 0.5f});
-    terrainEditor.AddPoint(Vec2 {screenWidthF * 2, screenHeightF * 0.7f});
-    terrainEditor.AddPoint(Vec2 {screenWidthF * 3, screenHeightF * 0.4f});
+//    terrainEditor.AddPoint(Vec2 {screenWidthF * 1, screenHeightF * 0.9f});
+//    terrainEditor.AddPoint(Vec2 {screenWidthF * 4, screenHeightF * -1.0f});
+//    terrainEditor.AddPoint(Vec2 {screenWidthF * 2, screenHeightF * 0.4f});
+//    terrainEditor.AddPoint(Vec2 {screenWidthF * 3, screenHeightF * 0.7f});
     // print points
     for (auto& point : terrainEditor.points) {
         std::cout << point.x << ", " << point.y << std::endl;
@@ -107,6 +110,7 @@ int main()
 
 //        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
+        UpdateTerrain();
         UpdateDrawFrame();
     }
 
@@ -147,6 +151,10 @@ void UpdateDrawFrame()
 
     Update();
 
+    // render terrain points
+    for (const Vec2& point : terrainEditor.points) {
+        DrawCircle(point.x, point.y, 20, WHITE);
+    }
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
     }
@@ -214,4 +222,26 @@ void UpdatePlayerCamera(int width, int height)
     theOtherCamera.offset = Vec2(virtualScreenWidth, virtualScreenHeight) / 2.0f;
     theOtherCamera.target = Vec2 {camera.target};
     theOtherCamera.zoom = camera.zoom / virtualRatio;
+}
+
+// update terrain method
+void UpdateTerrain() {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+//        terrainEditor.points.push_back(GetMousePosition());
+        terrainEditor.AddPoint(GetScreenToWorld2D(GetMousePosition(), camera));
+    }
+    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        terrainEditor.points.pop_back();
+    }
+    if (IsKeyPressed(KEY_BACKSPACE)) {
+        terrainEditor.points.clear();
+        terrainSegments.clear();
+    }
+    if (IsKeyPressed(KEY_ENTER)) {
+        terrainSegments.clear();
+        terrainSegments.reserve(terrainEditor.points.size() - 1);
+        for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
+            terrainSegments.push_back({ terrainEditor.points[i], terrainEditor.points[i + 1] });
+        }
+    }
 }
