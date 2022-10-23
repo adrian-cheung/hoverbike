@@ -19,7 +19,7 @@ struct RagDollSegment {
     float angularVel;
 };
 
-class RagDoll : RigidBody {
+class RagDoll : public RigidBody {
 public:
     RagDoll (Vec2 pos, Vec2 vel, float angle, float angularVel, float scale) : RigidBody(), scale(scale) {
         this->pos = pos;

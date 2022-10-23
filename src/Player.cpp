@@ -93,7 +93,7 @@ void Player::Update(const PlayerUpdateInfo& params) {
         Die(ragDolls);
     }
 
-    if (IsKeyPressed(KEY_L)) {
+    if (IsKeyPressed(KEY_R)) {
         if (!isDead) {
             Die(ragDolls);
         } else {

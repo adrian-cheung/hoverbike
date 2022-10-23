@@ -11,7 +11,6 @@
 
 class RigidBody {
 public:
-    Vec2 pos = {};
     Vec2 dimens;
     float angle = 0.0f;
 
@@ -24,6 +23,8 @@ public:
     virtual vector<Vec2> Polygon(Vec2 offset = {0, 0}, float angleOffset = 0);
 
     virtual void MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment>& terrainSegments);
+
+    Vec2 pos = {};
 };
 
 

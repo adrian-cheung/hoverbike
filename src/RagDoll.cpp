@@ -38,8 +38,8 @@ void RagDoll::Update(float deltaTime, const vector<TerrainSegment>& terrainSegme
     MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
 
     for (RagDollSegment& segment : segments) {
-        segment.angle += segment.angularVel * deltaTime;
-        segment.angularVel *= 0.9f;
+        segment.angle += segment.angularVel * deltaTime * 0.5f;
+        segment.angularVel *= 0.93f;
 //        const float MAX_ANGLE = PI * 0.45f;
 //        if (abs(angle) > MAX_ANGLE) {
 //            angle = std::signbit(angle) * MAX_ANGLE;

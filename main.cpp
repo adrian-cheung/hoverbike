@@ -38,6 +38,10 @@ std::unordered_set<int> gapIndices;
 RectF destRect;
 RectF srcRect;
 
+const float MAX_TIME_UNTIL_RESTART = 2.0f;
+float timeUntilRestart;
+float timeElapsed;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
@@ -116,8 +120,29 @@ int main()
     return 0;
 }
 
+void ResetPlayer() {
+    player->pos = Vec2{};
+    player->vel = Vec2{};
+    player->angularVel = 0.0f;
+    player->angle = 0.0f;
+    player->isDead = false;
+    timeElapsed = 0.0f;
+}
+
 // update method with WASD key movement
 void Update() {
+    float deltaTime = GetFrameTime();
+
+    if (player->isDead) {
+        timeUntilRestart -= deltaTime;
+        if (timeUntilRestart <= 0.0f) {
+            ResetPlayer();
+            timeUntilRestart = MAX_TIME_UNTIL_RESTART;
+        }
+    } else {
+        timeUntilRestart = MAX_TIME_UNTIL_RESTART;
+    }
+
     if (IsKeyPressed(KEY_P)) {
         player->godModeEnabled ^= true;
         if (player->godModeEnabled) { player->isDead = false; }
@@ -125,7 +150,6 @@ void Update() {
         player->angularVel = 0.0f;
     }
 
-    float deltaTime = GetFrameTime();
     player->Update({deltaTime, terrainSegments, particles, ragDolls});
 }
 
@@ -192,7 +216,7 @@ void RenderTerrain() {
     const auto& points = terrainEditor.points;
     vector<Vec2> thisPoly = {};
 
-    const Color TERRAIN_COLOR = BLACK;
+    const Color TERRAIN_COLOR = {18, 5, 17, 255};
     const auto RenderPoly = [&](){
         auto thePoly = thisPoly | reverse | to_vector{};
         for (int i = 0; i < thePoly.size() - 2; i++) {
@@ -233,14 +257,16 @@ void UpdatePlayerCamera(int width, int height)
 
     // smooth camera movement
     float minEffectLength = 10;
+    Vec2 targetPos = player->isDead ? ragDolls[ragDolls.size() - 1].pos : player->pos;
+
 
     camera.offset = (Vec2){ width/2.0f, height/2.0f };
-    Vec2 diff = Vector2Subtract(player->pos, camera.target);
+    Vec2 diff = targetPos - camera.target;
     float diffLength = Vector2Length(diff);
 
     if (diffLength > minEffectLength)
     {
-        camera.target = player->pos - ((diff / diffLength) * minEffectLength);
+        camera.target = targetPos - ((diff / diffLength) * minEffectLength);
     }
 
     // pixelated camera
