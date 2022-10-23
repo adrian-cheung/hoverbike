@@ -17,13 +17,22 @@ struct PlayerUpdateInfo {
 
 class Player : public RigidBody {
 public:
-    static constexpr float GRAVITY = 1000.0f;
+    static constexpr float GRAVITY = 800.0f;
 
     bool godModeEnabled = false;
     bool isDead = false;
 
     Vec2 force;
     float mass = 1.0f;
+
+    float boosterDir = PI / 2.0f;
+    float boosterAngleOffset = PI / 6.0f;
+    float maxLen = 250.0f;
+
+    Vec2 backBoosterPos;
+    Vec2 frontBoosterPos;
+    optional<float> backBoosterDist;
+    optional<float> frontBoosterDist;
 
 
     explicit Player(Vec2 pos) : RigidBody() {

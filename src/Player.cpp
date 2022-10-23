@@ -29,7 +29,7 @@ void Player::Update(const PlayerUpdateInfo& params) {
     //user input
 
     if (godModeEnabled) {
-        float flySpeed = 600.0f;
+        float flySpeed = 1000.0f;
         if (IsKeyDown(KEY_W)) {pos.y -= flySpeed * deltaTime;}
         if (IsKeyDown(KEY_S)) {pos.y += flySpeed * deltaTime;}
         if (IsKeyDown(KEY_A)) {pos.x -= flySpeed * deltaTime;}
@@ -42,11 +42,16 @@ void Player::Update(const PlayerUpdateInfo& params) {
 
     SimulateBoosters(params);
 
-    Vec2 forwardForce = Vec2 (500, 0).Rotate(angle);
     if (IsCapable() && IsKeyDown(KEY_SPACE)) {
+        Vec2 forwardForce = Vec2 (2000, 0).Rotate(angle);
         Vec2 leftMiddle = PlayerToWorldPos(dimens * Vec2(-0.5f, 0.0f));
 //        DrawCircleV(leftMiddle, 10, GREEN);
-        ApplyForce(forwardForce, leftMiddle, deltaTime);
+//        optional<float> backBoosterDist = BoosterRayCastDist(backBoosterPos, boosterDir + boosterAngleOffset, maxLen, terrainSegments);
+//        optional<float> frontBoosterDist = BoosterRayCastDist(frontBoosterPos, boosterDir - boosterAngleOffset, maxLen, terrainSegments);
+        if (backBoosterDist && frontBoosterDist) {
+            float boosterDistMultiplier = (maxLen - fmin(*backBoosterDist, *frontBoosterDist)) / maxLen + 0.5f;
+            ApplyForce(forwardForce * boosterDistMultiplier, leftMiddle, deltaTime);
+        }
 
         for (int i = 0; i < 3; i++) {
             particles.emplace_back(
@@ -65,13 +70,15 @@ void Player::Update(const PlayerUpdateInfo& params) {
     }
 
     if (IsCapable() && IsKeyDown(KEY_Z)) {
-        angularVel -= 0.5f;
+        angularVel -= 0.3f;
     }
     if (IsCapable() && IsKeyDown(KEY_X)) {
-        angularVel += 0.5f;
+        angularVel += 0.3f;
     }
 
-//    ApplyForce(vel * -0.5f, pos, deltaTime);
+
+
+    ApplyForce(Vec2 {vel.x * -0.3f, vel.y * -0.8f}, pos, deltaTime);
 
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
@@ -120,25 +127,22 @@ vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
 void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
     auto& [deltaTime, terrainSegments, particles, ragDolls] = params;
 
-    float maxLen = 100.0f;
-    float dir = PI / 2.0f;
-    float angleOffset = 0;
+    backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.36f, 0.5f));
+    frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.36f, 0.5f));
 
-    Vec2 backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.36f, 0.5f));
-    Vec2 frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.36f, 0.5f));
+    backBoosterDist = BoosterRayCastDist(backBoosterPos, boosterDir + boosterAngleOffset, maxLen, terrainSegments);
+    frontBoosterDist = BoosterRayCastDist(frontBoosterPos, boosterDir - boosterAngleOffset, maxLen, terrainSegments);
 
-    optional<float> backBoosterDist = BoosterRayCastDist(backBoosterPos, dir + angleOffset, maxLen, terrainSegments);
-    optional<float> frontBoosterDist = BoosterRayCastDist(frontBoosterPos, dir - angleOffset, maxLen, terrainSegments);
-
-    // sigmoid function
     const auto lenToForce = [&](float len){
-        return -(GRAVITY * 1.5f) / (1.0f + exp(-(maxLen * 0.5f - len) * 0.1f));
-        //        return -(maxLen - len) * 10.0f;
+        return -(GRAVITY * 5.0f) / (1.0f + exp(-(maxLen * 0.2f - len) * 0.05f));
+//        return -(maxLen - len) * 5.0f;
     };
 
     const auto TryBoost = [&](optional<float> boosterDist, Vec2 boosterPos, float boosterAngle) {
         if (boosterDist) {
-            Vec2 boosterForce = Vec2 (0, lenToForce(*boosterDist)).Rotate(boosterAngle);
+            float angleMultiplier = abs(cos(boosterAngle)) + 0.5;
+//            std::cout << boosterAngle << std::endl;
+            Vec2 boosterForce = Vec2 (0, lenToForce(*boosterDist)).Rotate(boosterAngle) * angleMultiplier;
 
 //            DrawLineV(boosterPos, boosterPos - boosterForce, WHITE);
 //            DrawCircleV(boosterPos, 10, RED);
@@ -162,8 +166,8 @@ void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
     };
 
 
-    TryBoost(backBoosterDist, backBoosterPos, angle + angleOffset);
-    TryBoost(frontBoosterDist, frontBoosterPos, angle - angleOffset);
+    TryBoost(backBoosterDist, backBoosterPos, angle + boosterAngleOffset);
+    TryBoost(frontBoosterDist, frontBoosterPos, angle - boosterAngleOffset);
 }
 
 optional<float> Player::BoosterRayCastDist(Vec2 origin, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const {
