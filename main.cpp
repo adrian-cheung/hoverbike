@@ -121,6 +121,7 @@ int main()
 void Update() {
     if (IsKeyPressed(KEY_G)) {
         player->godModeEnabled ^= true;
+        if (player->godModeEnabled) { player->isDead = false; }
         player->vel = Vec2 {};
         player->angularVel = 0.0f;
     }
