@@ -179,9 +179,9 @@ void UpdatePlayerCamera(int width, int height)
     {
         camera.target = GetScreenToWorld2D(GetMousePosition(), camera);
 
-        camera.zoom += wheel * 0.1f;
-        if (camera.zoom < 0.1f) {
-            camera.zoom = 0.1f;
+        camera.zoom += wheel * 0.05f;
+        if (camera.zoom < 0.05f) {
+            camera.zoom = 0.05f;
         } else if (camera.zoom > 2.0f) {
             camera.zoom = 2.0f;
         }
