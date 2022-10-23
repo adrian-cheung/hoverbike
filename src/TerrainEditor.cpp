@@ -56,6 +56,8 @@ void TerrainEditor::DebugRender() {
 
     int nearestIndex = FindNearestLineIndex(mousePos);
     DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 10.0f, RED);
+    DrawLineEx(points[nearestIndex], mousePos, 1.0f, ORANGE);
+    DrawLineEx(mousePos, points[nearestIndex + 1], 1.0f, ORANGE);
 }
 
 
