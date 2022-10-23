@@ -115,6 +115,12 @@ int main()
 
 // update method with WASD key movement
 void Update() {
+    if (IsKeyPressed(KEY_G)) {
+        player->godModeEnabled ^= true;
+        player->vel = Vec2 {};
+        player->angularVel = 0.0f;
+    }
+
     float deltaTime = GetFrameTime();
     player->Update({deltaTime, terrainSegments, particles});
 }
@@ -124,13 +130,6 @@ void Update() {
 //----------------------------------------------------------------------------------
 void UpdateDrawFrame()
 {
-    BeginTextureMode(target);
-    ClearBackground({0, 0, 0, 0});
-    BeginMode2D(theOtherCamera);
-    player->Render();
-    EndMode2D();
-    EndTextureMode();
-
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
@@ -144,10 +143,14 @@ void UpdateDrawFrame()
 
     // render terrain points
     for (const Vec2& point : terrainEditor.points) {
-        DrawCircle(point.x, point.y, 20, WHITE);
+        DrawCircleV(point, 20, WHITE);
     }
     for (const TerrainSegment& terrainSegment : terrainSegments) {
         terrainSegment.Render();
+    }
+
+    for (Vec2 p : player->Polygon()) {
+        DrawCircleV(p, 5, PURPLE);
     }
 
     terrainEditor.DebugRender(camera);
@@ -160,6 +163,12 @@ void UpdateDrawFrame()
         }
     }
 
+    EndMode2D();
+
+    BeginTextureMode(target);
+    ClearBackground({0, 0, 0, 0});
+    BeginMode2D(theOtherCamera);
+    player->Render();
     EndMode2D();
     EndTextureMode();
 

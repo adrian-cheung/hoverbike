@@ -22,24 +22,18 @@ void Player::Update(const PlayerUpdateInfo& params) {
     accel.y += GRAVITY;
 
     //user input
-    float speed = 300.0f;
 
-    if (IsKeyDown(KEY_W)) {
-        pos.y -= speed * deltaTime;
-    }
-    if (IsKeyDown(KEY_S)) {
-        pos.y += speed * deltaTime;
-    }
-    if (IsKeyDown(KEY_A)) {
-        pos.x -= speed * deltaTime;
-    }
-    if (IsKeyDown(KEY_D)) {
-        pos.x += speed * deltaTime;
-    }
+    if (godModeEnabled) {
+        float flySpeed = 600.0f;
+        if (IsKeyDown(KEY_W)) {pos.y -= flySpeed * deltaTime;}
+        if (IsKeyDown(KEY_S)) {pos.y += flySpeed * deltaTime;}
+        if (IsKeyDown(KEY_A)) {pos.x -= flySpeed * deltaTime;}
+        if (IsKeyDown(KEY_D)) {pos.x += flySpeed * deltaTime;}
 
-    float tiltSpeed = 200.0f * DEG2RAD;
-    if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed * deltaTime; }
-    if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed * deltaTime; }
+        float tiltSpeed = 200.0f * DEG2RAD;
+        if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed * deltaTime; }
+        if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed * deltaTime; }
+    }
 
     SimulateBoosters(params);
 
@@ -77,7 +71,10 @@ void Player::Update(const PlayerUpdateInfo& params) {
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
     angularVel *= 0.95f;
-    MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
+
+    if (!godModeEnabled) {
+        MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
+    }
 }
 
 void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
@@ -109,8 +106,8 @@ void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
     float dir = PI / 2.0f;
     float angleOffset = 0;
 
-    Vec2 backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.4f, 0.5f));
-    Vec2 frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.4f, 0.5f));
+    Vec2 backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.36f, 0.5f));
+    Vec2 frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.36f, 0.5f));
 
     optional<float> backBoosterDist = BoosterRayCastDist(backBoosterPos, dir + angleOffset, maxLen, terrainSegments);
     optional<float> frontBoosterDist = BoosterRayCastDist(frontBoosterPos, dir - angleOffset, maxLen, terrainSegments);
