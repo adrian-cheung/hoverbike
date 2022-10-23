@@ -6,6 +6,8 @@
 #include "src/CityScape.h"
 #include "src/Particle.h"
 #include "src/TerrainEditor.h"
+#include "src/Util.h"
+#include "src/RagDoll.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -28,6 +30,7 @@ TerrainEditor terrainEditor = TerrainEditor({screenWidthF * -1.0f, screenHeightF
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 vector<Particle> particles;
+vector<RagDoll> ragDolls;
 raylib::RenderTexture target;
 
 RectF destRect;
@@ -53,7 +56,6 @@ int main()
     //--------------------------------------------------------------------------------------
     raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
-
     // Add points with terrainEditor
 
 //    terrainEditor.AddPoint(Vec2 {screenWidthF * 1, screenHeightF * 0.9f});
@@ -92,6 +94,8 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
+    Util::Setup(camera);
+
     theOtherCamera.zoom = 1.0f;
     theOtherCamera.rotation = 0.0f;
 
@@ -122,7 +126,7 @@ void Update() {
     }
 
     float deltaTime = GetFrameTime();
-    player->Update({deltaTime, terrainSegments, particles});
+    player->Update({deltaTime, terrainSegments, particles, ragDolls});
 }
 
 //----------------------------------------------------------------------------------
@@ -153,7 +157,7 @@ void UpdateDrawFrame()
         DrawCircleV(p, 5, PURPLE);
     }
 
-    terrainEditor.DebugRender(camera);
+    terrainEditor.DebugRender();
 
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
@@ -168,7 +172,19 @@ void UpdateDrawFrame()
     BeginTextureMode(target);
     ClearBackground({0, 0, 0, 0});
     BeginMode2D(theOtherCamera);
+    // BEGIN PIXELATED ==========================
     player->Render();
+
+    for (int i = 0; i < ragDolls.size(); i++) {
+        RagDoll& ragDoll = ragDolls[i];
+//        if () {
+        // TODO: delete
+//            i--;
+//        }
+        ragDoll.Update(GetFrameTime(), terrainSegments);
+        ragDoll.Render();
+    }
+    //   END PIXELATED ==========================
     EndMode2D();
     EndTextureMode();
 
@@ -217,7 +233,6 @@ void UpdatePlayerCamera(int width, int height)
 // update terrain method
 void UpdateTerrain() {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-//        terrainEditor.points.push_back(GetMousePosition());
         terrainEditor.AddPoint(GetScreenToWorld2D(GetMousePosition(), camera));
     }
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {

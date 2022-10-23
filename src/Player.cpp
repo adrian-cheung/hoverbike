@@ -3,7 +3,7 @@
 #include "Util.h"
 
 void Player::Render() {
-	texture.Draw(
+    ActiveTexture().Draw(
             RectF {0, 0, (float) texture.width, (float) texture.height},
             {pos.x, pos.y, (float) texture.width * scale, (float) texture.height * scale},
             {(float) texture.width * scale / 2.0f, (float) texture.height * scale / 2.0f},
@@ -13,7 +13,12 @@ void Player::Render() {
 }
 
 void Player::Update(const PlayerUpdateInfo& params) {
-    auto& [deltaTime, terrainSegments, particles] = params;
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        Vec2 theVec = (Util::MousePosWorld() - pos) / dimens;
+        std::cout << theVec.x << ' ' << theVec.y << '\n';
+    }
+
+    auto& [deltaTime, terrainSegments, particles, ragDolls] = params;
 
     accel = Vec2 {};
     angularAccel = 0.0f;
@@ -38,7 +43,7 @@ void Player::Update(const PlayerUpdateInfo& params) {
     SimulateBoosters(params);
 
     Vec2 forwardForce = Vec2 (500, 0).Rotate(angle);
-    if (IsKeyDown(KEY_SPACE)) {
+    if (IsCapable() && IsKeyDown(KEY_SPACE)) {
         Vec2 leftMiddle = PlayerToWorldPos(dimens * Vec2(-0.5f, 0.0f));
 //        DrawCircleV(leftMiddle, 10, GREEN);
         ApplyForce(forwardForce, leftMiddle, deltaTime);
@@ -59,14 +64,14 @@ void Player::Update(const PlayerUpdateInfo& params) {
         }
     }
 
-    if (IsKeyDown(KEY_Z)) {
+    if (IsCapable() && IsKeyDown(KEY_Z)) {
         angularVel -= 0.5f;
     }
-    if (IsKeyDown(KEY_X)) {
+    if (IsCapable() && IsKeyDown(KEY_X)) {
         angularVel += 0.5f;
     }
 
-    ApplyForce(vel * -0.5f, pos, deltaTime);
+//    ApplyForce(vel * -0.5f, pos, deltaTime);
 
     vel += accel * deltaTime;
     angularVel += angularAccel * deltaTime;
@@ -74,6 +79,19 @@ void Player::Update(const PlayerUpdateInfo& params) {
 
     if (!godModeEnabled) {
         MoveAndRotate(vel * deltaTime, angularVel * deltaTime, terrainSegments);
+    }
+
+
+    if (!isDead && Collision::PolygonTerrain(PlayerPolygon(), terrainSegments)) {
+        Die(ragDolls);
+    }
+
+    if (IsKeyPressed(KEY_L)) {
+        if (!isDead) {
+            Die(ragDolls);
+        } else {
+            isDead = false;
+        }
     }
 }
 
@@ -90,17 +108,17 @@ void Player::ApplyForce(Vec2 force, Vec2 point, float deltaTime) {
 
 vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
     vector<Vec2> unTranslatedPoints = {
-            {-dimens.x, -dimens.y},
-            {dimens.x, -dimens.y},
-            {dimens.x, dimens.y},
-            {-dimens.x, dimens.y}
+            {-0.513077, 0.0355813},
+            {0.474355, -0.122622},
+            {0.469684, 0.341992},
+            {-0.510615, 0.382778}
     };
 
-    return unTranslatedPoints | MAP({ return pos + offset + (it * 0.5f).Rotate(angle + angleOffset); }) | to_vector{};
+    return unTranslatedPoints | MAP({ return pos + offset + (it * dimens).Rotate(angle + angleOffset); }) | to_vector{};
 }
 
 void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
-    auto& [deltaTime, terrainSegments, particles] = params;
+    auto& [deltaTime, terrainSegments, particles, ragDolls] = params;
 
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
@@ -165,60 +183,24 @@ Vec2 Player::PlayerToWorldPos(Vec2 playerPoint) const {
     return pos + playerPoint.Rotate(angle);
 }
 
-void Player::MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment> &terrainSegments) {
-    const auto CollidesWithDiff = [&](Vec2 offset){
-        return Collision::PolygonTerrain(Polygon(offset), terrainSegments);
+RayTexture &Player::ActiveTexture() {
+    return isDead ? textureDead : texture;
+}
+
+vector<Vec2> Player::PlayerPolygon(Vec2 offset, float angleOffset) {
+    vector<Vec2> unTranslatedPoints = {
+            {-0.238239, 0.177102},
+            {0.00445822, -0.451804},
+            {0.236286, -0.383904},
+            {0.11464, 0.189511}
     };
 
-    if (!Collision::PolygonTerrain(Polygon(diff, angleDiff), terrainSegments)) {
-        pos += diff;
-        angle += angleDiff;
-        return;
-    }
+    return unTranslatedPoints | MAP({ return pos + offset + (it * dimens).Rotate(angle + angleOffset); }) | to_vector{};
+}
 
-    const float STEP_LEN = 0.5f;
-
-    float diffX = 0;
-    for (int i = 0; i < (int) (diff.x / STEP_LEN); i++) {
-        diffX += STEP_LEN;
-        if (CollidesWithDiff({diffX, 0})) {
-            diffX -= STEP_LEN;
-            vel.x = -vel.x * 0.9f;
-            break;
-        }
-    }
-
-    float diffY = 0;
-    for (int i = 0; i < (int) (diff.y / STEP_LEN); i++) {
-        diffY += STEP_LEN;
-        if (CollidesWithDiff({diffX, diffY})) {
-            diffY -= STEP_LEN;
-            vel.y = -vel.y * 0.9f;
-            break;
-        }
-    }
-
-    const auto CollidesAtRotation = [&](float angleOffset){
-        return Collision::PolygonTerrain(Polygon({diffX, diffY}, angleOffset), terrainSegments);
-    };
-
-    pos += {diffX, diffY};
-
-    if (!CollidesAtRotation(angleDiff)) {
-        angle += angleDiff;
-        return;
-    }
-
-    float currAngleDiff = 0.0f;
-    const float ANGLE_STEP = 0.5f;
-    int angleDiffSign = std::signbit(angleDiff);
-    for (int i = 0; i < (int) (std::abs(angleDiff) / ANGLE_STEP); i++) {
-        currAngleDiff += ANGLE_STEP * (float) angleDiffSign;
-        if (CollidesAtRotation(currAngleDiff)) {
-            currAngleDiff -= ANGLE_STEP * (float) angleDiffSign;
-            angularVel = -angularVel * 0.9f;
-            break;
-        }
-    }
-    angle += currAngleDiff;
+void Player::Die(vector<RagDoll>& ragDolls) {
+    isDead = true;
+    ragDolls.emplace_back(
+            pos + Vec2(0, -30).Rotate(angle), vel, angle, angularVel + Random::RandPN(20), scale
+    );
 }

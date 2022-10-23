@@ -5,34 +5,29 @@
 #include "resources/Paths.h"
 #include "TerrainSegment.h"
 #include "Particle.h"
+#include "RagDoll.h"
+#include "RigidBody.h"
 
 struct PlayerUpdateInfo {
     float deltaTime;
     vector<TerrainSegment>& terrainSegments;
     vector<Particle>& particles;
+    vector<RagDoll>& ragDolls;
 };
 
-class Player {
+class Player : public RigidBody {
 public:
     static constexpr float GRAVITY = 1000.0f;
 
     bool godModeEnabled = false;
-
-    Vec2 pos;
-    Vec2 dimens;
-    float angle = 0.0f;
-//    float deltaTime = 1.0f;
-
-    Vec2 vel;
-    Vec2 accel;
-    float angularVel;
-    float angularAccel;
+    bool isDead = false;
 
     Vec2 force;
     float mass = 1.0f;
 
 
-    explicit Player(Vec2 pos) : pos(pos) {
+    explicit Player(Vec2 pos) : RigidBody() {
+        this->pos = pos;
         dimens = Vec2((float) texture.width, (float) texture.height) * scale;
     }
 
@@ -42,14 +37,21 @@ public:
 
     void Render();
 
-    vector<Vec2> Polygon(Vec2 offset = {0, 0}, float angleOffset = 0);
-
-    void MoveAndRotate(Vec2 diff, float angleDiff, const vector<TerrainSegment>& terrainSegments);
-
     [[nodiscard]] Vec2 PlayerToWorldPos(Vec2 playerPos) const;
+
+    RayTexture& ActiveTexture();
+
+    vector<Vec2> Polygon(Vec2 offset = {0, 0}, float angleOffset = 0) override;
+
+    vector<Vec2> PlayerPolygon(Vec2 offset = {0, 0}, float angleOffset = 0);
+
+    void Die(vector<RagDoll>& ragDolls);
+
+    [[nodiscard]] bool IsCapable() { return !isDead; }
 
 private:
     RayTexture texture = {Paths::Image("bike")};
+    RayTexture textureDead = {Paths::Image("bikeonly")};
     float scale = 4;
 
     void SimulateBoosters(const PlayerUpdateInfo& params);

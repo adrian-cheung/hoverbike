@@ -4,6 +4,7 @@
 
 #include <cfloat>
 #include "TerrainEditor.h"
+#include "Util.h"
 
 TerrainEditor::TerrainEditor(Vec2 p1, Vec2 p2) {
     points = { p1, p2 };
@@ -36,8 +37,8 @@ float TerrainEditor::PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2) {
     return (point - projection).Length();
 }
 
-void TerrainEditor::DebugRender(const Camera2D& camera) {
-    Vec2 mousePos = GetScreenToWorld2D(GetMousePosition(), camera);
+void TerrainEditor::DebugRender() {
+    Vec2 mousePos = Util::MousePosWorld();
 
     int nearestIndex = FindNearestIndex(mousePos);
     DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 10.0f, RED);
