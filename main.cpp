@@ -18,8 +18,6 @@ const int virtualRatio = 4;
 const int virtualScreenWidth = screenWidth / virtualRatio;
 const int virtualScreenHeight = screenHeight / virtualRatio;
 
-int frames = 0;
-
 shared_ptr<Player> player;
 Camera2D camera = { 0 };
 Camera2D theOtherCamera = { 0 };
@@ -85,8 +83,6 @@ int main()
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
-
-//        Update();
         UpdatePlayerCamera(screenWidth, screenHeight);
         UpdateDrawFrame();
     }
@@ -96,13 +92,8 @@ int main()
 
 // update method with WASD key movement
 void Update() {
-    frames = ++frames % 60;
     float deltaTime = GetFrameTime();
-    player->Update(deltaTime, terrainSegments);
-    if (frames % 3 == 0) {
-        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(-1.0f, 1.0f)), {0, 25}));
-        particles.push_back(Particle(player->PlayerToWorldPos(player->dimens * 0.5f * Vec2(1.0f, 1.0f)), {0, 25}));
-    }
+    player->Update({deltaTime, terrainSegments, particles});
 }
 
 //----------------------------------------------------------------------------------
@@ -132,31 +123,19 @@ void UpdateDrawFrame()
         terrainSegment.Render();
     }
 
-//    player->Render();
     for(int i = 0; i < particles.size(); i++) {
         particles[i].Render();
 
-        if (particles[i].Update(GetFrameTime(), frames)) {
+        if (particles[i].Update(GetFrameTime())) {
             particles.erase(particles.begin() + i);
         }
     }
-
-
-    DrawCircle(screenWidth / 2, screenHeight / 2, 10, BLACK);
-
-    if (Collision::PolygonTerrain(player->Polygon(), terrainSegments)) {
-        DrawText("Colliding >:O", 10, 450, 30, ORANGE);
-    }
-
-    raylib::DrawText("gaming time", 190, 200, 20, LIGHTGRAY);
-    raylib::DrawText("player angle: " + std::to_string(player->angle), 190, 250, 20, LIGHTGRAY);
 
     EndMode2D();
     EndTextureMode();
 
     // Draw
     //----------------------------------------------------------------------------------
-//    EndMode2D();
     target.GetTexture().Draw(srcRect, destRect, {0, 0}, 0.0f, WHITE);
 
     EndDrawing();

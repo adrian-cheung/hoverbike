@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Collision.h"
+#include "Util.h"
 
 void Player::Render() {
 	texture.Draw(
@@ -11,7 +12,9 @@ void Player::Render() {
     );
 }
 
-void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegments) {
+void Player::Update(const PlayerUpdateInfo& params) {
+    auto& [deltaTime, terrainSegments, particles] = params;
+
     accel = Vec2 {};
     angularAccel = 0.0f;
 
@@ -38,33 +41,35 @@ void Player::Update(float deltaTime, const vector<TerrainSegment>& terrainSegmen
     if (IsKeyDown(KEY_LEFT)) { angle -= tiltSpeed * deltaTime; }
     if (IsKeyDown(KEY_RIGHT)) { angle += tiltSpeed * deltaTime; }
 
-    SimulateBoosters(terrainSegments, deltaTime);
+    SimulateBoosters(params);
 
     Vec2 forwardForce = Vec2 (500, 0).Rotate(angle);
-    Vec2 rotateForce = Vec2 (0, -500).Rotate(angle);
     if (IsKeyDown(KEY_SPACE)) {
-        Vec2 leftMiddle = PlayerToWorldPos(dimens * 0.5f * Vec2(-1, 0));
-        DrawCircleV(leftMiddle, 10, GREEN);
+        Vec2 leftMiddle = PlayerToWorldPos(dimens * Vec2(-0.5f, 0.0f));
+//        DrawCircleV(leftMiddle, 10, GREEN);
         ApplyForce(forwardForce, leftMiddle, deltaTime);
+
+        for (int i = 0; i < 3; i++) {
+            particles.emplace_back(
+                    leftMiddle + Vec2(0, 1) * Random::Rand(20.0f),
+                    Util::Polar(
+                            angle + PI + Random::RandPN(30 * DEG2RAD),
+                            Random::Rand(100, 150)
+                    ),
+                    RayColor(
+                            Random::RandI(200, 255),
+                            Random::RandI(0, 255),
+                            Random::RandI(0, 10),
+                            Random::RandI(100, 150)
+                    ));
+        }
     }
-//    if (IsKeyDown(KEY_Z)) {
-//        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
-//        DrawCircleV(bottomLeft, 10, GREEN);
-//        ApplyForce(rotateForce, bottomLeft, deltaTime);
-//    }
-//    if (IsKeyDown(KEY_X)) {
-//        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
-//        DrawCircleV(bottomRight, 10, GREEN);
-//        ApplyForce(rotateForce, bottomRight, deltaTime);
-//    }
 
     if (IsKeyDown(KEY_Z)) {
         angularVel -= 0.5f;
-//        angularAccel -= 0.1f;
     }
     if (IsKeyDown(KEY_X)) {
         angularVel += 0.5f;
-//        angularAccel += 0.1f;
     }
 
     ApplyForce(vel * -0.5f, pos, deltaTime);
@@ -97,13 +102,18 @@ vector<Vec2> Player::Polygon(Vec2 offset, float angleOffset) {
     return unTranslatedPoints | MAP({ return pos + offset + (it * 0.5f).Rotate(angle + angleOffset); }) | to_vector{};
 }
 
-void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, float deltaTime) {
+void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
+    auto& [deltaTime, terrainSegments, particles] = params;
+
     float maxLen = 100.0f;
     float dir = PI / 2.0f;
     float angleOffset = 0;
 
-    optional<float> backBoosterDist = BoosterRayCastDist(dimens * 0.5f * Vec2(-1, 1), dir + angleOffset, maxLen, terrainSegments);
-    optional<float> frontBoosterDist = BoosterRayCastDist(dimens * 0.5f, dir - angleOffset, maxLen, terrainSegments);
+    Vec2 backBoosterPos = PlayerToWorldPos(dimens * Vec2(-0.4f, 0.5f));
+    Vec2 frontBoosterPos = PlayerToWorldPos(dimens * Vec2(0.4f, 0.5f));
+
+    optional<float> backBoosterDist = BoosterRayCastDist(backBoosterPos, dir + angleOffset, maxLen, terrainSegments);
+    optional<float> frontBoosterDist = BoosterRayCastDist(frontBoosterPos, dir - angleOffset, maxLen, terrainSegments);
 
     // sigmoid function
     const auto lenToForce = [&](float len){
@@ -111,31 +121,37 @@ void Player::SimulateBoosters(const vector<TerrainSegment>& terrainSegments, flo
         //        return -(maxLen - len) * 10.0f;
     };
 
-    if (backBoosterDist) {
-        raylib::DrawText(std::to_string(*backBoosterDist), 50, 50, 30, BLUE);
+    const auto TryBoost = [&](optional<float> boosterDist, Vec2 boosterPos, float boosterAngle) {
+        if (boosterDist) {
+            Vec2 boosterForce = Vec2 (0, lenToForce(*boosterDist)).Rotate(boosterAngle);
 
-        Vec2 backForce = Vec2 (0, lenToForce(*backBoosterDist)).Rotate(angle + angleOffset);
-        Vec2 bottomLeft = PlayerToWorldPos(dimens * 0.5f * Vec2(-1.0f, 1.0f));
+//            DrawLineV(boosterPos, boosterPos - boosterForce, WHITE);
+//            DrawCircleV(boosterPos, 10, RED);
+            ApplyForce(boosterForce, boosterPos, deltaTime);
+        }
+        if (Random::Rand() < 0.7f) {
+            float particleAngle = boosterAngle + (PI / 2) + Random::RandPN(30 * DEG2RAD);
 
-        DrawLineV(bottomLeft, bottomLeft - backForce, WHITE);
-        DrawCircleV(bottomLeft, 10, RED);
-        ApplyForce(backForce, bottomLeft, deltaTime);
-    }
+            RayColor particleColor = RayColor(
+                    Random::RandI(80, 90),
+                    Random::RandI(183, 190),
+                    Random::RandI(212, 225),
+                    125
+            );
+            particles.emplace_back(
+            boosterPos,
+            Util::Polar(particleAngle, 250.0f * Random::Rand(1.0f, 1.5f)),
+            particleColor);
+        }
 
-    if (frontBoosterDist) {
-        raylib::DrawText(std::to_string(*frontBoosterDist), 50, 150, 30, BLUE);
+    };
 
-        Vec2 frontForce = Vec2 (0, lenToForce(*frontBoosterDist)).Rotate(angle - angleOffset);
-        Vec2 bottomRight = PlayerToWorldPos(dimens * 0.5f * Vec2(1.0f, 1.0f));
 
-        DrawLineV(bottomRight, bottomRight - frontForce, WHITE);
-        DrawCircleV(bottomRight, 10, RED);
-        ApplyForce(frontForce, bottomRight, deltaTime);
-    }
+    TryBoost(backBoosterDist, backBoosterPos, angle + angleOffset);
+    TryBoost(frontBoosterDist, frontBoosterPos, angle - angleOffset);
 }
 
-optional<float> Player::BoosterRayCastDist(Vec2 playerPoint, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const {
-    Vec2 origin = PlayerToWorldPos(playerPoint);
+optional<float> Player::BoosterRayCastDist(Vec2 origin, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const {
     Vec2 rayEnd = origin + Vec2(maxLen, 0).Rotate(angle + dir);
 
     DrawLineEx(origin, rayEnd, 1.0f, BLUE);
