@@ -23,6 +23,7 @@ public:
     TerrainEditor(Vec2 p1, Vec2 p2);
 
     void Update(vector<TerrainSegment>& terrainSegments);
+    void RebuildTerrain(vector<TerrainSegment>& terrainSegments);
     void AddPoint(Vec2 point);
     void MovePoint();
     void DebugRender();
@@ -31,8 +32,6 @@ private:
     int FindNearestLineIndex(Vec2 point);
     static float PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2);
     vector<int> PointsBetween(Vec2 selectStart, Vec2 selectEnd);
-    void RebuildTerrain(vector<TerrainSegment>& terrainSegments);
-
     static RectF GimmeRect(Vec2 selectStart, Vec2 selectEnd);
 };
 

@@ -27,17 +27,13 @@ vector<Vec2> TerrainSerializer::LoadTerrain(const std::string& filename) {
     return terrainPoints;
 }
 
-void TerrainSerializer::Update(vector<Vec2>& terrainPoints, vector<TerrainSegment>& terrainSegments) {
+void TerrainSerializer::Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor) {
     if (IsKeyPressed(KEY_F1)) {
-        SaveTerrain(terrainPoints, "terrain.txt");
+        SaveTerrain(terrainEditor.points, "terrain.txt");
     }
     if (IsKeyPressed(KEY_F2)) {
-        terrainPoints = LoadTerrain("terrain.txt");
-        terrainSegments.clear();
-        terrainSegments.reserve(terrainPoints.size() - 1);
-        for (int i = 0; i < terrainPoints.size() - 1; i++) {
-            terrainSegments.push_back({ terrainPoints[i], terrainPoints[i + 1] });
-        }
+        terrainEditor.points = LoadTerrain("terrain.txt");
+        terrainEditor.RebuildTerrain(terrainSegments);
     }
 
 }
