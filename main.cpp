@@ -8,6 +8,7 @@
 #include "src/TerrainEditor.h"
 #include "src/Util.h"
 #include "src/RagDoll.h"
+#include "src/TerrainSerializer.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -257,4 +258,6 @@ void UpdateTerrain() {
         terrainEditor.points.clear();
         terrainSegments.clear();
     }
+
+    TerrainSerializer::Update(terrainEditor.points, terrainSegments);
 }
