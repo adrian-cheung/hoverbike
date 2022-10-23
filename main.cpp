@@ -33,6 +33,7 @@ CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 vector<Particle> particles;
 vector<RagDoll> ragDolls;
 raylib::RenderTexture target;
+std::unordered_set<int> gapIndices;
 
 RectF destRect;
 RectF srcRect;
@@ -43,6 +44,7 @@ RectF srcRect;
 void UpdateDrawFrame();     // Update and Draw one frame
 void UpdatePlayerCamera(int width, int height);
 void Update();
+void RenderTerrain();
 
 
 
@@ -58,10 +60,6 @@ int main()
     player = std::make_shared<Player>(Vec2 {screenWidthF / 2, screenHeightF / 2});
     // Add points with terrainEditor
 
-//    terrainEditor.AddPoint(Vec2 {screenWidthF * 1, screenHeightF * 0.9f});
-//    terrainEditor.AddPoint(Vec2 {screenWidthF * 4, screenHeightF * -1.0f});
-//    terrainEditor.AddPoint(Vec2 {screenWidthF * 2, screenHeightF * 0.4f});
-//    terrainEditor.AddPoint(Vec2 {screenWidthF * 3, screenHeightF * 0.7f});
     // print points
     for (auto& point : terrainEditor.points) {
         std::cout << point.x << ", " << point.y << std::endl;
@@ -110,8 +108,8 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
         UpdatePlayerCamera(screenWidth, screenHeight);
-        TerrainSerializer::Update(terrainSegments, terrainEditor);
-        terrainEditor.Update(terrainSegments);
+        TerrainSerializer::Update(terrainSegments, gapIndices, terrainEditor);
+        terrainEditor.Update(terrainSegments, gapIndices);
         UpdateDrawFrame();
     }
 
@@ -152,10 +150,6 @@ void UpdateDrawFrame()
         terrainSegment.Render();
     }
 
-//    for (Vec2 p : player->Polygon()) {
-//        DrawCircleV(p, 5, PURPLE);
-//    }
-
     terrainEditor.DebugRender();
 
     for(int i = 0; i < particles.size(); i++) {
@@ -176,13 +170,12 @@ void UpdateDrawFrame()
 
     for (int i = 0; i < ragDolls.size(); i++) {
         RagDoll& ragDoll = ragDolls[i];
-//        if () {
-        // TODO: delete
-//            i--;
-//        }
         ragDoll.Update(GetFrameTime(), terrainSegments);
         ragDoll.Render();
     }
+
+    RenderTerrain();
+
     //   END PIXELATED ==========================
     EndMode2D();
     EndTextureMode();
@@ -193,6 +186,32 @@ void UpdateDrawFrame()
 
     EndDrawing();
     //----------------------------------------------------------------------------------
+}
+
+void RenderTerrain() {
+    const auto& points = terrainEditor.points;
+    vector<Vec2> thisPoly = {};
+
+    const Color TERRAIN_COLOR = BLACK;
+    const auto RenderPoly = [&](){
+        for (int i = 0; i < thisPoly.size() - 2; i++) {
+            DrawTriangle(thisPoly[0], thisPoly[i + 1], thisPoly[i + 2], TERRAIN_COLOR);
+        }
+    };
+
+    for (int i = 0; i < points.size() - 1; i++) {
+        if (gapIndices.contains(i)) {
+            RenderPoly();
+            thisPoly.clear();
+        } else {
+            if (thisPoly.empty()) {
+                thisPoly.push_back(points[i]);
+            }
+            thisPoly.push_back(points[i + 1]);
+        }
+    }
+
+    RenderPoly();
 }
 
 void UpdatePlayerCamera(int width, int height)

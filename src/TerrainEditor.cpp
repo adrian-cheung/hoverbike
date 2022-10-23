@@ -55,7 +55,7 @@ void TerrainEditor::DebugRender() {
     Vec2 mousePos = Util::MousePosWorld();
 
     int nearestIndex = FindNearestLineIndex(mousePos);
-    DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 10.0f, RED);
+    DrawLineEx(points[nearestIndex], points[nearestIndex + 1], 25.0f, RED);
     DrawLineEx(points[nearestIndex], mousePos, 1.0f, ORANGE);
     DrawLineEx(mousePos, points[nearestIndex + 1], 1.0f, ORANGE);
 
@@ -69,19 +69,19 @@ void TerrainEditor::DebugRender() {
 }
 
 vector<int> TerrainEditor::PointsBetween(Vec2 selectStart, Vec2 selectEnd) {
-    vector<int> indicies = {};
+    vector<int> indices = {};
 
     RectF rect = GimmeRect(selectStart, selectEnd);
     for (int i = 0; i < points.size(); i++) {
         if (CheckCollisionPointRec(points[i], rect)) {
-            indicies.push_back(i);
+            indices.push_back(i);
         }
     }
 
-    return indicies;
+    return indices;
 }
 
-void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
+void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices) {
     bool leftPressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
     bool shiftHeld = IsKeyDown(KEY_LEFT_SHIFT);
     Vec2 mousePos = Util::MousePosWorld();
@@ -94,7 +94,7 @@ void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
         }
         selectedPoints.clear();
         grabbing = false;
-        RebuildTerrain(terrainSegments);
+        RebuildTerrain(terrainSegments, gapIndices);
         return;
     }
 
@@ -112,7 +112,7 @@ void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
                 points[i] = preTransformPoints[i] + diff;
             }
         }
-        RebuildTerrain(terrainSegments);
+        RebuildTerrain(terrainSegments, gapIndices);
 
         if (leftPressed || IsKeyPressed(KEY_SPACE)) {
             grabbing = false;
@@ -136,19 +136,6 @@ void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
         return;
     }
 
-
-//    if (leftPressed && IsKeyDown(KEY_LEFT_SHIFT)) {
-//
-//    }
-
-//    if (IsKeyDown(KEY_LEFT_CONTROL)) {
-//        for (const Vec2& point : points) {
-//            DrawCircleV(point, 20, GREEN);
-//        }
-//        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-//            points.push_back(GetMousePosition());
-//        }
-//    }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         int index = FindNearestLineIndex(mousePos);
         AddPoint(mousePos);
@@ -157,24 +144,39 @@ void TerrainEditor::Update(vector<TerrainSegment>& terrainSegments) {
             selectedPoints.clear();
         }
         selectedPoints.insert(index + 1);
-        RebuildTerrain(terrainSegments);
+        RebuildTerrain(terrainSegments, gapIndices);
     }
-//    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-//        points.pop_back();
-//    }
-//    if (IsKeyPressed(KEY_BACKSPACE)) {
-//        points.clear();
-//        terrainSegments.clear();
-//    }
 
+    if (IsKeyPressed(KEY_K)) {
+        int index = FindNearestLineIndex(mousePos);
+
+        if (gapIndices.contains(index)) {
+            gapIndices.erase(index);
+        } else {
+            gapIndices.insert(index);
+        }
+
+        RebuildTerrain(terrainSegments, gapIndices);
+    }
 }
 
-void TerrainEditor::RebuildTerrain(vector<TerrainSegment> &terrainSegments) {
+void TerrainEditor::RebuildTerrain(vector<TerrainSegment> &terrainSegments, std::unordered_set<int>& gapIndices) {
     terrainSegments.clear();
     terrainSegments.reserve(std::max(0, (int) points.size() - 1));
+
+    int batchStart = 0;
     for (int i = 0; i < points.size() - 1; i++) {
-        terrainSegments.push_back({ points[i], points[i + 1] });
+        if (gapIndices.contains(i)) {
+            if (i != batchStart) {
+                terrainSegments.push_back({ points[i], points[batchStart] });
+            }
+
+            batchStart = i + 1;
+        } else {
+            terrainSegments.push_back({ points[i], points[i + 1] });
+        }
     }
+    terrainSegments.push_back({points[points.size() - 1], points[batchStart]});
 }
 
 RectF TerrainEditor::GimmeRect(Vec2 selectStart, Vec2 selectEnd) {

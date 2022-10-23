@@ -23,7 +23,7 @@ private:
     int seed = 0;
     int GetHeight(int x) {
         srand(seed);
-        for (int i = 0; i < abs(x); i++) {
+        for (int i = 0; i < abs(x * xParralax); i++) {
             rand();
         }
         return (rand() % 150) - yOffset;

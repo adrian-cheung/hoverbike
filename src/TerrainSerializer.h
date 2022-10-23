@@ -10,7 +10,7 @@
 
 class TerrainSerializer {
 public:
-    static void Update(vector<TerrainSegment>& terrainSegments, TerrainEditor& terrainEditor);
+    static void Update(vector<TerrainSegment>& terrainSegments, std::unordered_set<int>& gapIndices, TerrainEditor& terrainEditor);
 
     static void SaveTerrain(const vector<Vec2> &terrainPoints, const std::string &filename);
 
