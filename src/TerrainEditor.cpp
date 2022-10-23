@@ -29,8 +29,11 @@ int TerrainEditor::FindNearestIndex(Vec2 point) {
 }
 
 float TerrainEditor::PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2) {
-    return (float) abs((lineP2.x - lineP1.x) * (lineP1.y - point.y) - (lineP1.x - point.x) * (lineP2.y - lineP1.y))
-            / ((float) sqrt(pow(lineP2.x - lineP1.x, 2) + pow(lineP2.y - lineP1.y, 2)));
+    float lengthSquared = pow((lineP2 - lineP1).Length(), 2);
+    if (lengthSquared == 0.0f) return (point - lineP1).Length();
+    float parameterizedT = fmax(0, fmin(1, (point - lineP1).DotProduct(lineP2 - lineP1) / lengthSquared));
+    Vec2 projection = lineP1 + (lineP2 - lineP1) * parameterizedT;
+    return (point - projection).Length();
 }
 
 void TerrainEditor::DebugRender(const Camera2D& camera) {
