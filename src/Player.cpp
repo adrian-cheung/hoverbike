@@ -203,8 +203,10 @@ vector<Vec2> Player::PlayerPolygon(Vec2 offset, float angleOffset) {
 }
 
 void Player::Die(vector<RagDoll>& ragDolls) {
+    if (godModeEnabled) { return; }
+
     isDead = true;
     ragDolls.emplace_back(
-            pos + Vec2(0, -30).Rotate(angle), vel, angle, angularVel + Random::RandPN(20), scale
+            pos + Vec2(0, -10).Rotate(angle), vel, angle, angularVel + Random::RandPN(20), scale
     );
 }

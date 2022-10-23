@@ -153,9 +153,9 @@ void UpdateDrawFrame()
         terrainSegment.Render();
     }
 
-    for (Vec2 p : player->Polygon()) {
-        DrawCircleV(p, 5, PURPLE);
-    }
+//    for (Vec2 p : player->Polygon()) {
+//        DrawCircleV(p, 5, PURPLE);
+//    }
 
     terrainEditor.DebugRender();
 
@@ -234,6 +234,12 @@ void UpdatePlayerCamera(int width, int height)
 void UpdateTerrain() {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         terrainEditor.AddPoint(GetScreenToWorld2D(GetMousePosition(), camera));
+        terrainSegments.clear();
+        terrainSegments.reserve(terrainEditor.points.size() - 1);
+        for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
+            terrainSegments.push_back({ terrainEditor.points[i], terrainEditor.points[i + 1] });
+        }
+
     }
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         terrainEditor.points.pop_back();
@@ -241,12 +247,5 @@ void UpdateTerrain() {
     if (IsKeyPressed(KEY_BACKSPACE)) {
         terrainEditor.points.clear();
         terrainSegments.clear();
-    }
-    if (IsKeyPressed(KEY_ENTER)) {
-        terrainSegments.clear();
-        terrainSegments.reserve(terrainEditor.points.size() - 1);
-        for (int i = 0; i < terrainEditor.points.size() - 1; i++) {
-            terrainSegments.push_back({ terrainEditor.points[i], terrainEditor.points[i + 1] });
-        }
     }
 }

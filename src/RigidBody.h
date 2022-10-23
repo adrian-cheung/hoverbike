@@ -19,7 +19,7 @@ public:
     Vec2 accel = {};
     float angularVel = 0.0f;
     float angularAccel = 0.0f;
-    float bounceConstant = -0.9f;
+    float bounceConstant = -0.1f;
 
     virtual vector<Vec2> Polygon(Vec2 offset = {0, 0}, float angleOffset = 0);
 
