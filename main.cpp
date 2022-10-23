@@ -28,6 +28,7 @@ Camera2D theOtherCamera = { 0 };
 vector<Vec2> terrainPoints;
 vector<TerrainSegment> terrainSegments;
 TerrainEditor terrainEditor = TerrainEditor({screenWidthF * -1.0f, screenHeightF * 0.75f}, {screenWidthF * 10.0f, screenHeightF * 0.75f});
+TerrainSerializer terrainSerializer;
 CityScape cityscape1 = CityScape(2, 5, 0, RayColor(0, 0, 0, 128));
 CityScape cityscape2 = CityScape(1, 3, 150, RayColor(0, 0, 0, 170));
 vector<Particle> particles;
@@ -112,7 +113,7 @@ int main()
     while (!window.ShouldClose())    // Detect window close button or ESC key
     {
         UpdatePlayerCamera(screenWidth, screenHeight);
-        TerrainSerializer::Update(terrainSegments, gapIndices, terrainEditor);
+        terrainSerializer.Update(terrainSegments, gapIndices, terrainEditor);
         terrainEditor.Update(terrainSegments, gapIndices);
         UpdateDrawFrame();
     }
