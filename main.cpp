@@ -9,6 +9,7 @@
 #include "src/Util.h"
 #include "src/RagDoll.h"
 #include "src/TerrainSerializer.h"
+#include "src/Game.h"
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
@@ -156,6 +157,10 @@ void Update() {
         }
     } else {
         timeUntilRestart = MAX_TIME_UNTIL_RESTART;
+    }
+
+    if (IsKeyPressed(KEY_B)) {
+        Game::DEV_MODE ^= true;
     }
 
     if (IsKeyPressed(KEY_P)) {

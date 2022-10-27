@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Collision.h"
 #include "Util.h"
+#include "Game.h"
 
 void Player::Render() {
     ActiveTexture().Draw(
@@ -173,10 +174,10 @@ void Player::SimulateBoosters(const PlayerUpdateInfo& params) {
 optional<float> Player::BoosterRayCastDist(Vec2 origin, float dir, float maxLen, const vector<TerrainSegment>& terrainSegments) const {
     Vec2 rayEnd = origin + Vec2(maxLen, 0).Rotate(angle + dir);
 
-    if (DEV_MODE) {DrawLineEx(origin, rayEnd, 1.0f, BLUE);}
+    if (Game::DEV_MODE) {DrawLineEx(origin, rayEnd, 1.0f, BLUE);}
 
     if (auto collision = Collision::LineTerrainNearest(origin, rayEnd, terrainSegments)) {
-        if (DEV_MODE) {DrawCircleV(*collision, 10.0f, ORANGE);}
+        if (Game::DEV_MODE) {DrawCircleV(*collision, 10.0f, ORANGE);}
         return collision->Distance(origin);
     }
 

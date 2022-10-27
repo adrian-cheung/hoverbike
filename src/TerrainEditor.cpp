@@ -5,6 +5,7 @@
 #include <cfloat>
 #include "TerrainEditor.h"
 #include "Util.h"
+#include "Game.h"
 
 TerrainEditor::TerrainEditor(Vec2 p1, Vec2 p2) {
     points = { p1, p2 };
@@ -52,7 +53,7 @@ float TerrainEditor::PointLineDistance(Vec2 point, Vec2 lineP1, Vec2 lineP2) {
 }
 
 void TerrainEditor::DebugRender() {
-    if (!DEV_MODE) {return;}
+    if (!Game::DEV_MODE) {return;}
     Vec2 mousePos = Util::MousePosWorld();
 
     int nearestIndex = FindNearestLineIndex(mousePos);

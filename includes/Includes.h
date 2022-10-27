@@ -58,6 +58,4 @@ auto operator|(T&& r, to_vector helper) {
     return v;
 }
 
-#define DEV_MODE true
-
 #endif //THEGAME_INCLUDES_H
