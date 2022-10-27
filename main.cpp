@@ -121,6 +121,9 @@ int main()
     srcRect = RectF { 0.0f, 0.0f, (float)target.texture.width, -(float)target.texture.height };
     destRect = RectF { 0, 0, screenWidth, screenHeight };
 
+    terrainSerializer.LoadTerrain(terrainEditor.points, gapIndices, start, end);
+    terrainEditor.RebuildTerrain(terrainSegments, gapIndices);
+
 
     // Main game loop
     while (!window.ShouldClose())    // Detect window close button or ESC key
